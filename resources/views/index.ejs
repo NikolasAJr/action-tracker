@@ -39,26 +39,30 @@
 						<span>Срок исполнения</span>
 						<span>Осталось дней</span>
 						<span>Статус</span>
+						<span></span>
 					</div>
 					<% tasks.forEach(task=> { %>
-						<div class="task-row" onclick="openDetails('<%= task.title %>', '<%= task.assigned_to %>')">
-							<span class="task-title">
-								<%= task.title %>
-							</span>
-							<span class="task-assigned_to">
-								<%= task.assigned_to %>
-							</span>
-							<span class="task-deadline">
-								<%= task.deadline %>
-							</span>
+						<div class="task-row">
+							<div class="task-clickable-area" style="display: contents" onclick="openDetails('<%= task.title %>', '<%= task.assigned_to %>')">
+								<span>
+									<%= task.title %>
+								</span>
+								<span>
+									<%= task.assigned_to %>
+								</span>
+								<span>
+									<%= task.deadline %>
+								</span>
+								<span>
+									<%= task.days_left %>
+								</span> <span class="task-status <%= task.status === 'Просрочена' ? 'status-red' : 'status-green' %>">
+									<%= task.status %>
+								</span>
+							</div>
 
-							<span class="task-days_left">
-								<%= task.days_left %>
-							</span>
-
-							<span class="task-status <%= task.status === 'Просрочена' ? 'status-red' : 'status-green' %>">
-								<%= task.status %>
-							</span>
+							<div class="task-actions">
+								<a href="/tasks/delete/<%= task.id %>" onclick="return confirm('Удалить задачу?')" class="delete-btn">🗑️</a>
+							</div>
 						</div>
 						<% }); %>
 				</div>

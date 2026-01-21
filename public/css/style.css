@@ -97,12 +97,18 @@ body {
 .table-header,
 .task-row {
 	display: grid;
-	/* Настраиваем 5 колонок: Название, Исполнитель, Срок, Дни, Статус */
-	grid-template-columns: 2.5fr 1.5fr 1.2fr 1fr 1.2fr;
+	grid-template-columns: 2.5fr 1.5fr 1.2fr 1fr 1.2fr 0.5fr;
 	padding: 15px 25px;
 	border-bottom: 1px solid var(--border-color);
-	align-items: center; /* Чтобы текст был по центру по вертикали */
+	align-items: center;
 }
+
+/* .table-header,
+.task-row {
+	display: grid;
+	grid-template-columns: 2.5fr 1.5fr 1.2fr 1fr 1.2fr 0.5fr;
+	gap: 10px;
+} */
 
 .table-header {
 	background: #f9fafb;
