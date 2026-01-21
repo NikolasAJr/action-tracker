@@ -1,0 +1,14 @@
+{
+	"compilerOptions": {
+		"module": "NodeNext",
+		"moduleResolution": "NodeNext",
+		"target": "ESNext",
+		"checkJs": true,
+		"jsx": "react",
+		"baseUrl": ".",
+		"paths": {
+			"@/*": ["src/*"]
+		}
+	},
+	"exclude": ["node_modules", "dist", ".vscode"]
+}

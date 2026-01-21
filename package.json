@@ -20,15 +20,19 @@
 	"type": "module",
 	"main": "index.js",
 	"scripts": {
-		"test": "nodemon backend/app.js",
-		"start": "node backend/app.js"
+		"test": "nodemon app.js",
+		"start": "node app.js"
 	},
 	"dependencies": {
 		"@koa/router": "^15.2.0",
+		"@ladjs/koa-views": "^9.0.0",
 		"better-sqlite3": "^12.6.2",
+		"ejs": "^3.1.10",
 		"koa": "^3.1.1",
 		"koa-bodyparser": "^4.4.1",
-		"koa-static": "^5.0.0"
+		"koa-mount": "^4.2.0",
+		"koa-static": "^5.0.0",
+		"koa-views": "^8.1.0"
 	},
 	"devDependencies": {
 		"nodemon": "^3.1.11"

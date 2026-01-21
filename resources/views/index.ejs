@@ -1,0 +1,98 @@
+<!DOCTYPE html>
+<html lang="ru">
+
+<head>
+	<meta charset="UTF-8">
+	<meta name="viewport" content="width=device-width, initial-scale=1.0">
+	<title>Action Tracker | Dashboard</title>
+	<link rel="stylesheet" href="/css/style.css">
+</head>
+
+<body>
+	<div class="app-container">
+		<aside class="sidebar">
+			<div class="logo">A</div>
+			<nav class="nav-icons">
+				<div class="icon active">🏠</div>
+				<div class="icon">📊</div>
+				<div class="icon">⚙️</div>
+			</nav>
+		</aside>
+
+		<main class="main-content">
+			<header class="top-bar">
+				<h1>Action Tracker</h1>
+				<form class="add-task-form" action="/tasks" method="POST">
+					<input type="text" name="title" placeholder="Что сделать?" required>
+					<input type="text" name="assigned_to" placeholder="Исполнитель">
+					<input type="text" name="deadline" placeholder="Срок исполнения">
+					<input type="text" name="status" placeholder="Статус">
+					<button type="submit">Добавить</button>
+				</form>
+			</header>
+
+			<section class="table-container">
+				<div class="task-table">
+					<div class="table-header">
+						<span>Название задачи</span>
+						<span>Исполнитель</span>
+						<span>Срок исполнения</span>
+						<span>Осталось дней</span>
+						<span>Статус</span>
+					</div>
+					<% tasks.forEach(task=> { %>
+						<div class="task-row" onclick="openDetails('<%= task.title %>', '<%= task.assigned_to %>')">
+							<span class="task-title">
+								<%= task.title %>
+							</span>
+							<span class="task-assigned_to">
+								<%= task.assigned_to %>
+							</span>
+							<span class="task-deadline">
+								<%= task.deadline %>
+							</span>
+
+							<span class="task-days_left">
+								<%= task.days_left %>
+							</span>
+
+							<span class="task-status <%= task.status === 'Просрочена' ? 'status-red' : 'status-green' %>">
+								<%= task.status %>
+							</span>
+						</div>
+						<% }); %>
+				</div>
+			</section>
+		</main>
+
+		<div id="overlay" class="overlay" onclick="closeDetails()"></div>
+
+		<aside id="details-panel" class="details-panel">
+			<button class="close-btn" onclick="closeDetails()">✕</button>
+			<div class="panel-content">
+				<h2 id="panel-title">Детали задачи</h2>
+				<hr>
+				<p><strong>Исполнитель:</strong> <span id="panel-user"></span></p>
+				<div class="dummy-text">
+					Здесь будет описание задачи, комментарии и история изменений.
+				</div>
+			</div>
+		</aside>
+	</div>
+
+	<script>
+		function openDetails(title, user) {
+			document.getElementById('panel-title').innerText = title;
+			document.getElementById('panel-user').innerText = user;
+			document.getElementById('details-panel').classList.add('open');
+			document.getElementById('overlay').classList.add('visible');
+		}
+
+		function closeDetails() {
+			document.getElementById('details-panel').classList.remove('open');
+			document.getElementById('overlay').classList.remove('visible');
+		}
+	</script>
+</body>
+
+</html>
