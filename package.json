@@ -1,0 +1,36 @@
+{
+	"name": "action-tracker",
+	"version": "1.0.0",
+	"description": "Track your actions",
+	"keywords": [
+		"action;",
+		"tracker;",
+		"nodejs"
+	],
+	"homepage": "https://github.com/NikolasAJr/action-tracker#readme",
+	"bugs": {
+		"url": "https://github.com/NikolasAJr/action-tracker/issues"
+	},
+	"repository": {
+		"type": "git",
+		"url": "git+https://github.com/NikolasAJr/action-tracker.git"
+	},
+	"license": "ISC",
+	"author": "q_oliver",
+	"type": "module",
+	"main": "index.js",
+	"scripts": {
+		"test": "nodemon backend/app.js",
+		"start": "node backend/app.js"
+	},
+	"dependencies": {
+		"@koa/router": "^15.2.0",
+		"better-sqlite3": "^12.6.2",
+		"koa": "^3.1.1",
+		"koa-bodyparser": "^4.4.1",
+		"koa-static": "^5.0.0"
+	},
+	"devDependencies": {
+		"nodemon": "^3.1.11"
+	}
+}
