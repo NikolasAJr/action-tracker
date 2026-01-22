@@ -6,13 +6,13 @@ db.prepare(
 	`
   CREATE TABLE IF NOT EXISTS tasks (
     id INTEGER PRIMARY KEY AUTOINCREMENT,
-    title TEXT NOT NULL,
+    parent_id INTEGER DEFAULT NULL,
+    task_description TEXT NOT NULL,
     assigned_to TEXT,
     deadline DATE,
-    days_left INT,
-    status TEXT
+    status TEXT,
+    FOREIGN KEY (parent_id) REFERENCES tasks(id) ON DELETE CASCADE
   )
 `,
 ).run();
-
 export default db;

@@ -103,12 +103,31 @@ body {
 	align-items: center;
 }
 
-/* .table-header,
-.task-row {
-	display: grid;
-	grid-template-columns: 2.5fr 1.5fr 1.2fr 1fr 1.2fr 0.5fr;
-	gap: 10px;
-} */
+/* Смещение для подзадач */
+.task-row.is-subtask {
+	padding-left: 50px;
+	background: #fafafa;
+	position: relative;
+	border-bottom: 1px dashed var(--border-color);
+}
+
+/* Линия связи */
+.task-row.is-subtask::before {
+	content: '';
+	position: absolute;
+	left: 25px;
+	top: -15px; /* Соединение с предыдущей строкой */
+	bottom: 50%;
+	width: 15px;
+	border-left: 2px solid #cbd5e1;
+	border-bottom: 2px solid #cbd5e1;
+	border-bottom-left-radius: 4px;
+}
+
+/* Скрываем линию у первой подзадачи, если нужно, или настраиваем отступы */
+.task-row:hover {
+	background: #f3f4f6 !important;
+}
 
 .table-header {
 	background: #f9fafb;

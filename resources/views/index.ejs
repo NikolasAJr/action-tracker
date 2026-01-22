@@ -23,9 +23,9 @@
 			<header class="top-bar">
 				<h1>Action Tracker</h1>
 				<form class="add-task-form" action="/tasks" method="POST">
-					<input type="text" name="title" placeholder="Что сделать?" required>
+					<input type="text" name="task_description" placeholder="Что сделать?" required>
 					<input type="text" name="assigned_to" placeholder="Исполнитель">
-					<input type="text" name="deadline" placeholder="Срок исполнения">
+					<input type="date" name="deadline" placeholder="Срок исполнения">
 					<input type="text" name="status" placeholder="Статус">
 					<button type="submit">Добавить</button>
 				</form>
@@ -34,7 +34,7 @@
 			<section class="table-container">
 				<div class="task-table">
 					<div class="table-header">
-						<span>Название задачи</span>
+						<span>Задача</span>
 						<span>Исполнитель</span>
 						<span>Срок исполнения</span>
 						<span>Осталось дней</span>
@@ -42,10 +42,10 @@
 						<span></span>
 					</div>
 					<% tasks.forEach(task=> { %>
-						<div class="task-row">
-							<div class="task-clickable-area" style="display: contents" onclick="openDetails('<%= task.title %>', '<%= task.assigned_to %>')">
+						<div class="task-row <%= task.isSubtask ? 'is-subtask' : '' %>">
+							<div class="task-clickable-area" style="display: contents" onclick="openDetails()">
 								<span>
-									<%= task.title %>
+									<%= task.task_description %>
 								</span>
 								<span>
 									<%= task.assigned_to %>
@@ -54,14 +54,18 @@
 									<%= task.deadline %>
 								</span>
 								<span>
-									<%= task.days_left %>
-								</span> <span class="task-status <%= task.status === 'Просрочена' ? 'status-red' : 'status-green' %>">
+									<%= task.daysLeft %>
+								</span>
+								<span class="task-status">
 									<%= task.status %>
 								</span>
 							</div>
 
 							<div class="task-actions">
-								<a href="/tasks/delete/<%= task.id %>" onclick="return confirm('Удалить задачу?')" class="delete-btn">🗑️</a>
+								<% if (!task.isSubtask) { %>
+									<button onclick="addSubtask('<%= task.id %>')" title="Добавить подзадачу">➕</button>
+									<% } %>
+										<a href="/tasks/delete/<%= task.id %>" class="delete-btn">🗑️</a>
 							</div>
 						</div>
 						<% }); %>
@@ -85,8 +89,8 @@
 	</div>
 
 	<script>
-		function openDetails(title, user) {
-			document.getElementById('panel-title').innerText = title;
+		function openDetails(task_description, user) {
+			document.getElementById('panel-title').innerText = task_description;
 			document.getElementById('panel-user').innerText = user;
 			document.getElementById('details-panel').classList.add('open');
 			document.getElementById('overlay').classList.add('visible');
@@ -95,6 +99,28 @@
 		function closeDetails() {
 			document.getElementById('details-panel').classList.remove('open');
 			document.getElementById('overlay').classList.remove('visible');
+		}
+
+		function addSubtask(parentId) {
+			// Можно либо открывать модальное окно, 
+			// либо просто скроллить к основной форме и добавлять hidden input
+			let form = document.querySelector('.add-task-form');
+
+			// Удаляем старый parent_id если был
+			let oldInput = document.getElementById('parent-id-input');
+			if (oldInput) oldInput.remove();
+
+			// Добавляем новый
+			let input = document.createElement('input');
+			input.type = 'hidden';
+			input.name = 'parent_id';
+			input.id = 'parent-id-input';
+			input.value = parentId;
+			form.appendChild(input);
+
+			// Подсветим форму
+			form.querySelector('input[name="task_description"]').placeholder = "Подзадача...";
+			form.querySelector('input[name="task_description"]').focus();
 		}
 	</script>
 </body>
