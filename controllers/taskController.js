@@ -2,7 +2,7 @@ import db from '../database/dbConntect.js';
 
 export const renderDashboard = async (ctx) => {
 	// Получаем все задачи
-	const allTasks = db.prepare('SELECT * FROM tasks').all();
+	const allTasks = db.prepare('SELECT * FROM task').all();
 	const today = new Date();
 	today.setHours(0, 0, 0, 0);
 
@@ -30,7 +30,7 @@ export const renderDashboard = async (ctx) => {
 		 * @param {object} task
 		 */
 		function innerTaskHandler(task) {
-			const targetDate = new Date(task.deadline);
+			const targetDate = new Date(task.deadline_at);
 			targetDate.setHours(0, 0, 0, 0);
 			const diffInMs = targetDate.getTime() - today.getTime();
 			let daysLeft = Math.ceil(diffInMs / (1000 * 60 * 60 * 24));
@@ -52,16 +52,16 @@ export const renderDashboard = async (ctx) => {
 
 // Обновите createTask, чтобы принимать parent_id
 export const createTask = async (ctx) => {
-	const { task_description, assigned_to, deadline, status, parent_id } = ctx.request.body;
+	const { title, assigned_to, deadline_at, status, parent_id } = ctx.request.body;
 
 	// ... логика расчета daysLeft (как была) ...
 
 	db.prepare(
 		`
-        INSERT INTO tasks (task_description, assigned_to, deadline, status, parent_id) 
+        INSERT INTO task (title, assigned_to, deadline_at, status, parent_id) 
         VALUES (?, ?, ?, ?, ?)
     `,
-	).run(task_description, assigned_to, deadline, status, parent_id || null);
+	).run(title, assigned_to, deadline_at, status, parent_id || null);
 
 	ctx.redirect('/');
 };
@@ -69,6 +69,6 @@ export const createTask = async (ctx) => {
 // Добавляем новую функцию удаления
 export const deleteTask = async (ctx) => {
 	const { id } = ctx.params;
-	db.prepare('DELETE FROM tasks WHERE id = ?').run(id);
+	db.prepare('DELETE FROM task WHERE id = ?').run(id);
 	ctx.redirect('/');
 };

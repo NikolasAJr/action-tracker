@@ -2,7 +2,7 @@
 	--sidebar-width: 64px;
 	--panel-width: 600px;
 	--bg-color: #f4f7f6;
-	--accent-color: #4f46e5;
+	--accent-color: #6b7280;
 	--text-main: #1f2937;
 	--border-color: #e5e7eb;
 }
@@ -190,4 +190,135 @@ body {
 	border: none;
 	font-size: 24px;
 	cursor: pointer;
+}
+
+/* Общие стили для инлайновых форм */
+.inline-add-form {
+	border-bottom: 1px solid var(--border-color);
+	background: #fdfdfd;
+}
+
+.inline-add-form input {
+	background: transparent;
+	border: 1px solid transparent;
+	padding: 5px;
+	font-size: 14px;
+	width: 100%;
+}
+
+.inline-add-form input:focus {
+	border-bottom-color: var(--accent-color);
+	outline: none;
+}
+
+/* Стили для кнопок в строке */
+.mini-add-btn,
+.add-btn-large {
+	background: var(--accent-color);
+	color: white;
+	border: none;
+	border-radius: 4px;
+	cursor: pointer;
+	font-size: 12px;
+}
+
+.add-btn-large {
+	padding: 8px 15px;
+	grid-column: span 1;
+}
+
+/* Подсветка строки добавления подзадачи */
+.is-subtask.inline-add-form {
+	background-color: #f9fafb;
+}
+
+/* Настройка сетки для форм (чтобы совпадала с хэдером) */
+.inline-add-form {
+	display: grid;
+	grid-template-columns: 2.5fr 1.5fr 1.2fr 1fr 1.2fr 0.5fr;
+	gap: 10px;
+	align-items: center;
+}
+
+/* Скрываем элемент полностью */
+.hidden {
+	display: none !important;
+}
+
+/* Настраиваем внешний вид инпутов в строке, чтобы они не растягивали сетку */
+.inline-add-form input {
+	border: 1px solid var(--border-color);
+	border-radius: 4px;
+	padding: 4px 8px;
+	width: 90%;
+}
+
+.mini-add-btn {
+	padding: 5px 10px;
+	background-color: var(--accent-color);
+	color: white;
+	border: none;
+	border-radius: 4px;
+	cursor: pointer;
+}
+
+.toggle-icon {
+	display: inline-block;
+	cursor: pointer;
+	width: 20px;
+	height: 20px;
+	line-height: 20px;
+	text-align: center;
+	transition: transform 0.2s;
+	color: var(--accent-color);
+	font-size: 12px;
+}
+
+.toggle-icon:hover {
+	background: #e5e7eb;
+	border-radius: 4px;
+}
+
+/* Линия связи теперь должна отображаться корректно только при развернутом списке */
+.task-row.is-subtask::before {
+	/* Ваши существующие стили */
+	z-index: 1;
+}
+
+.add-task-container {
+	position: relative;
+	margin-top: 40px;
+	padding: 25px 20px 20px 20px; /* Верхний отступ больше, чтобы заголовок не мешал инпутам */
+	border: 1px solid var(--border-color);
+	border-radius: 12px;
+	background-color: white; /* Или прозрачный, если форма должна сливаться с фоном */
+	box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
+}
+
+.add-task-title {
+	position: absolute;
+	top: -11px; /* Поднимаем заголовок ровно на линию рамки */
+	left: 20px;
+	background-color: var(--bg-color); /* Цвет фона страницы, чтобы "перекрыть" линию */
+	padding: 0 6px; /* Отступы по бокам, чтобы линия не касалась букв */
+	font-size: 14px;
+	font-weight: 600;
+	color: var(--accent-color);
+	text-transform: uppercase;
+	letter-spacing: 0.5px;
+}
+
+/* Настраиваем форму внутри контейнера, чтобы она не дублировала стили таблицы */
+.main-add-row {
+	border-bottom: none !important; /* Убираем лишние линии */
+	padding: 0 !important;
+	background: transparent !important;
+}
+
+/* Если нужно, чтобы форма внутри тоже была сеткой как таблица */
+.main-add-row {
+	display: grid;
+	grid-template-columns: 2.5fr 1.5fr 1.2fr 1fr 1.2fr 0.5fr;
+	gap: 15px;
+	align-items: center;
 }
