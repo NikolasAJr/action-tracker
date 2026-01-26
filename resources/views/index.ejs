@@ -2,232 +2,238 @@
 <html lang="ru">
 
 <head>
-	<meta charset="UTF-8">
-	<meta name="viewport" content="width=device-width, initial-scale=1.0">
-	<title>Action Tracker | Dashboard</title>
-	<link rel="stylesheet" href="/css/style.css">
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Action Tracker | Dashboard</title>
+  <link rel="stylesheet" href="/css/style.css">
 </head>
 
 <body>
-	<div class="app-container">
-		<aside class="sidebar">
-			<div class="logo">A</div>
-			<nav class="nav-icons">
-				<div class="icon active">🏠</div>
-				<div class="icon">📊</div>
-				<div class="icon">⚙️</div>
-			</nav>
-		</aside>
+  <div class="app-container">
+    <aside class="sidebar">
+      <div class="logo">At</div>
+      <nav class="nav-icons">
+        <div class="icon active">🏠</div>
+        <div class="icon">📊</div>
+        <div class="icon">⚙️</div>
+      </nav>
+    </aside>
 
-		<main class="main-content">
-			<section class="table-container">
-				<div class="task-table">
-					<div class="table-header">
-						<span>Задача</span>
-						<span>Ответственный</span>
-						<span>Срок исполнения</span>
-						<span>Осталось дней</span>
-						<span>Статус</span>
-						<span></span>
-					</div>
+    <main class="main-content">
+      <section class="table-container">
+        <div class="task-table">
+          <div class="table-header">
+            <span>Задача</span>
+            <span>Ответственный</span>
+            <span>Срок</span>
+            <span>Дней</span>
+            <span title="Подзадачи" style="display: flex; justify-content: center; align-items: center;">
+              <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="opacity: 0.6;">
+                <path d="M3 3h6v6H3zM15 15h6v6h-6zM15 3h6v6h-6zM9 6h6M12 6v12M12 18h3" />
+              </svg>
+            </span>
+            <span>Статус</span>
+            <span></span>
+          </div>
 
-					<% tasks.forEach(task=> { %>
-						<div class="task-row <%= task.isSubtask ? 'is-subtask' : '' %>" <% if(task.isSubtask) { %> data-parent-id="<%= task.parent_id %>" style="display: none;" <% } %>>
-									<div class="task-clickable-area" style="display: contents" onclick="openDetails('<%= task.title %>', '<%= task.assigned_to %>')">
-										<% const hasChildren=tasks.some(t=> t.parent_id === task.id);
-											%>
+          <% tasks.forEach(task=> { %>
+          <% const subtaskCount = tasks.filter(t => t.parent_id === task.id).length; %>
+          <% const hasChildren = subtaskCount > 0; %>
 
-											<span style="display: flex; align-items: center; gap: 8px;">
-												<% if (!task.isSubtask) { %>
-													<% if (hasChildren) { %>
-														<span class="toggle-icon" onclick="event.stopPropagation(); toggleSubtasks('<%= task.id %>', this)" style="<%= hasChildren ? '' : 'visibility: hidden;' %>">▶</span>
-														<% } else { %>
-															<span style="width: 20px;"></span>
-															<% } %>
-																<% } %>
-																	<%= task.title %>
-											</span>
-											<span>
-												<%= task.assigned_to %>
-											</span>
-											<span>
-												<%= task.deadline_at %>
-											</span>
-											<span>
-												<%= task.daysLeft %>
-											</span>
-											<span class="task-status">
-												<%= task.status %>
-											</span>
-									</div>
+          <div class="task-row <%= task.isSubtask ? 'is-subtask' : '' %>" <% if(task.isSubtask) { %> data-parent-id="<%= task.parent_id %>" style="display: none;" <% } %>>
 
-									<div class="task-actions">
-										<% if (!task.isSubtask) { %>
-											<button onclick="toggleSubtaskForm('<%= task.id %>')" title="Добавить подзадачу">➕</button>
-											<% } %>
-												<a href="/tasks/delete/<%= task.id %>" class="delete-btn">🗑️</a>
-									</div>
-						</div>
+            <div class="task-clickable-area" onclick="openDetails('<%= task.title %>', '<%= task.assigned_to %>')">
 
-						<% if (!task.isSubtask) { %>
-							<form action="/tasks" method="POST" id="form-sub-<%= task.id %>" class="task-row is-subtask inline-add-form hidden" data-parent-form="<%= task.id %>">
-								<input type="hidden" name="parent_id" value="<%= task.id %>">
-								<input type="text" name="title" placeholder="Название подзадачи..." required>
-								<input type="text" name="assigned_to" placeholder="Ответственный" required>
-								<input type="date" name="deadline_at" required>
-								<input type="text" name="daysLeft" placeholder="Дней">
-								<input type="text" name="status" placeholder="Статус" required>
-								<button type="submit" class="mini-add-btn">ОК</button>
-							</form>
-							<% } %>
-								<% }); %>
-				</div>
+              <span style="display: flex; align-items: center; gap: 8px;">
+                <% if (!task.isSubtask) { %>
+                <span class="toggle-icon" onclick="event.stopPropagation(); toggleSubtasks('<%= task.id %>', this)" style="<%= hasChildren ? '' : 'visibility: hidden;' %>">▶</span>
+                <% } %>
+                <%= task.title %>
+              </span>
 
-				<!-- Форма для добавления новой задачи -->
-				<div class="section-divider"></div>
+              <span><%= task.assigned_to %></span>
 
-				<div class="add-task-container">
-					<h3 class="add-task-title">Добавить новую задачу</h3>
-					<form action="/tasks" method="POST" class="task-row inline-add-form main-add-row">
-						<input type="text" name="title" placeholder="Начните ввод новой задачи..." required>
-						<input type="text" name="assigned_to" placeholder="Ответственный" required>
-						<input type="date" name="deadline_at" required>
-						<input type="text" name="daysLeft" placeholder="Осталось дней" readonly>
-						<input type="text" name="status" placeholder="Статус" required>
-						<button type="submit" class="add-btn-large">Добавить задачу</button>
-					</form>
-				</div>
+              <span><%= task.deadline_at %></span>
 
-			</section>
-		</main>
+              <span class="<%= task.daysLeft <= 1 ? 'days-critical' : task.daysLeft <= 3 ? 'days-warning' : '' %>">
+                <%= task.daysLeft %>
+              </span>
 
-		<div id="overlay" class="overlay" onclick="closeDetails()"></div>
+              <span class="subtask-count">
+                <% if (!task.isSubtask && subtaskCount > 0) { %>
+                <span class="subtask-badge <%= subtaskCount > 5 ? 'has-many' : '' %>">
+                  <%= subtaskCount %>
+                </span>
+                <% } %>
+              </span>
 
-		<aside id="details-panel" class="details-panel">
-			<button class="close-btn" onclick="closeDetails()">✕</button>
-			<div class="panel-content">
-				<h2 id="panel-title">Детали задачи</h2>
-				<hr>
-				<p><strong>Исполнитель:</strong> <span id="panel-user"></span></p>
-				<div class="dummy-text">
-					Здесь будет описание задачи, комментарии и история изменений.
-				</div>
-			</div>
-		</aside>
-	</div>
+              <span class="task-status <%= task.status?.toLowerCase() === 'просрочено' ? 'status-overdue' : 
+                                     task.status?.toLowerCase() === 'в работе' ? 'status-progress' :
+                                     task.status?.toLowerCase() === 'готово' ? 'status-done' : 'status-open' %>">
+                <%= task.status %>
+              </span>
+            </div>
 
-	<script>
-		function openDetails(title, user) {
-			document.getElementById('panel-title').innerText = title;
-			document.getElementById('panel-user').innerText = user;
-			document.getElementById('details-panel').classList.add('open');
-			document.getElementById('overlay').classList.add('visible');
-		}
+            <div class="task-actions">
+              <% if (!task.isSubtask) { %>
+              <button onclick="event.stopPropagation(); toggleSubtaskForm('<%= task.id %>')" title="Добавить подзадачу">➕</button>
+              <% } %>
+              <a href="/tasks/delete/<%= task.id %>" class="delete-btn" title="Удалить задачу" onclick="event.stopPropagation();">🗑️</a>
+            </div>
+          </div>
 
-		function closeDetails() {
-			document.getElementById('details-panel').classList.remove('open');
-			document.getElementById('overlay').classList.remove('visible');
-		}
+          <% if (!task.isSubtask) { %>
+          <form action="/tasks" method="POST" id="form-sub-<%= task.id %>" class="task-row is-subtask inline-add-form hidden">
+            <input type="hidden" name="parent_id" value="<%= task.id %>">
+            <input type="text" name="title" placeholder="Название подзадачи..." required>
+            <input type="text" name="assigned_to" placeholder="Ответственный" required>
+            <input type="date" name="deadline_at" required>
+            <input type="text" readonly> <input type="text" readonly> <input type="text" name="status" value="В работе" required>
+            <button type="submit" class="mini-add-btn">ОК</button>
+          </form>
+          <% } %>
+          <% }); %>
 
-		function addSubtask(parentId) {
-			// Можно либо открывать модальное окно, 
-			// либо просто скроллить к основной форме и добавлять hidden input
-			let form = document.querySelector('.add-task-form');
+          <form action="/tasks" method="POST" class="task-row inline-add-form main-add-row">
+            <input type="text" name="title" placeholder="Начните ввод новой задачи..." required>
+            <input type="text" name="assigned_to" placeholder="Ответственный" required>
+            <input type="date" name="deadline_at" required>
+            <input type="text" readonly>
+            <input type="text" readonly>
+            <input type="text" name="status" placeholder="Статус" required>
+            <button type="submit" class="add-btn-large">Добавить задачу</button>
+          </form>
+        </div>
+      </section>
+    </main>
 
-			// Удаляем старый parent_id если был
-			let oldInput = document.getElementById('parent-id-input');
-			if (oldInput) oldInput.remove();
+    <div id="overlay" class="overlay" onclick="closeDetails()"></div>
 
-			// Добавляем новый
-			let input = document.createElement('input');
-			input.type = 'hidden';
-			input.name = 'parent_id';
-			input.id = 'parent-id-input';
-			input.value = parentId;
-			form.appendChild(input);
+    <aside id="details-panel" class="details-panel">
+      <button class="close-btn" onclick="closeDetails()">✕</button>
+      <div class="panel-content">
+        <h2 id="panel-title">Детали задачи</h2>
+        <hr>
+        <p><strong>Исполнитель:</strong> <span id="panel-user"></span></p>
+        <div class="dummy-text">
+          Здесь будет описание задачи, комментарии и история изменений.
+        </div>
+      </div>
+    </aside>
+  </div>
 
-			// Подсветим форму
-			form.querySelector('input[name="title"]').placeholder = "Подзадача...";
-			form.querySelector('input[name="title"]').focus();
-		}
+  <script>
+    function openDetails(title, user) {
+      document.getElementById('panel-title').innerText = title;
+      document.getElementById('panel-user').innerText = user;
+      document.getElementById('details-panel').classList.add('open');
+      document.getElementById('overlay').classList.add('visible');
+    }
 
-		function toggleSubtaskForm(taskId) {
-			const form = document.getElementById(`form-sub-${taskId}`);
-			const icon = document.querySelector(`.toggle-icon[onclick*="'${taskId}'"]`);
+    function closeDetails() {
+      document.getElementById('details-panel').classList.remove('open');
+      document.getElementById('overlay').classList.remove('visible');
+    }
 
-			// 1. Раскрываем список подзадач, если он есть и был свернут
-			const subtasks = document.querySelectorAll(`.task-row[data-parent-id="${taskId}"]`);
-			if (subtasks.length > 0) {
-				subtasks.forEach(sub => sub.style.display = 'grid');
-				if (icon) {
-					icon.classList.add('expanded');
-					icon.innerText = '▼';
-				}
-				saveToStorage(taskId); // Сохраняем состояние в localStorage, чтобы не закрылось
-			}
+    function addSubtask(parentId) {
+      // Можно либо открывать модальное окно, 
+      // либо просто скроллить к основной форме и добавлять hidden input
+      let form = document.querySelector('.add-task-form');
 
-			// 2. Показываем/скрываем саму форму ввода
-			if (form.classList.contains('hidden')) {
-				// Скрываем другие открытые формы для порядка
-				document.querySelectorAll('.inline-add-form.is-subtask').forEach(f => f.classList.add('hidden'));
+      // Удаляем старый parent_id если был
+      let oldInput = document.getElementById('parent-id-input');
+      if (oldInput) oldInput.remove();
 
-				form.classList.remove('hidden');
-				form.querySelector('input[name="title"]').focus();
-			} else {
-				form.classList.add('hidden');
-			}
-		}
+      // Добавляем новый
+      let input = document.createElement('input');
+      input.type = 'hidden';
+      input.name = 'parent_id';
+      input.id = 'parent-id-input';
+      input.value = parentId;
+      form.appendChild(input);
 
-		// Функция для переключения видимости
-		function toggleSubtasks(parentId, iconElement) {
-			const subtasks = document.querySelectorAll(`.task-row[data-parent-id="${parentId}"]`);
-			const isExpanded = iconElement.classList.contains('expanded');
+      // Подсветим форму
+      form.querySelector('input[name="title"]').placeholder = "Подзадача...";
+      form.querySelector('input[name="title"]').focus();
+    }
 
-			if (isExpanded) {
-				// Сворачиваем
-				subtasks.forEach(sub => sub.style.display = 'none');
-				iconElement.classList.remove('expanded');
-				iconElement.innerText = '▶';
-				removeFromStorage(parentId);
-			} else {
-				// Разворачиваем
-				subtasks.forEach(sub => sub.style.display = 'grid');
-				iconElement.classList.add('expanded');
-				iconElement.innerText = '▼';
-				saveToStorage(parentId);
-			}
-		}
+    function toggleSubtaskForm(taskId) {
+      const form = document.getElementById(`form-sub-${taskId}`);
+      const icon = document.querySelector(`.toggle-icon[onclick*="'${taskId}'"]`);
 
-		// Функции для работы с памятью браузера
-		function saveToStorage(id) {
-			let expanded = JSON.parse(localStorage.getItem('expandedTasks') || '[]');
-			if (!expanded.includes(id)) expanded.push(id);
-			localStorage.setItem('expandedTasks', JSON.stringify(expanded));
-		}
+      // 1. Раскрываем список подзадач, если он есть и был свернут
+      const subtasks = document.querySelectorAll(`.task-row[data-parent-id="${taskId}"]`);
+      if (subtasks.length > 0) {
+        subtasks.forEach(sub => sub.style.display = 'grid');
+        if (icon) {
+          icon.classList.add('expanded');
+          icon.innerText = '▼';
+        }
+        saveToStorage(taskId); // Сохраняем состояние в localStorage, чтобы не закрылось
+      }
 
-		function removeFromStorage(id) {
-			let expanded = JSON.parse(localStorage.getItem('expandedTasks') || '[]');
-			expanded = expanded.filter(item => item !== id);
-			localStorage.setItem('expandedTasks', JSON.stringify(expanded));
-		}
+      // 2. Показываем/скрываем саму форму ввода
+      if (form.classList.contains('hidden')) {
+        // Скрываем другие открытые формы для порядка
+        document.querySelectorAll('.inline-add-form.is-subtask').forEach(f => f.classList.add('hidden'));
 
-		// ПРИ ЗАГРУЗКЕ СТРАНИЦЫ: открываем те, что были развернуты
-		window.addEventListener('DOMContentLoaded', () => {
-			const expanded = JSON.parse(localStorage.getItem('expandedTasks') || '[]');
-			expanded.forEach(id => {
-				const subtasks = document.querySelectorAll(`.task-row[data-parent-id="${id}"]`);
-				const icon = document.querySelector(`.toggle-icon[onclick*="'${id}'"]`);
+        form.classList.remove('hidden');
+        form.querySelector('input[name="title"]').focus();
+      } else {
+        form.classList.add('hidden');
+      }
+    }
 
-				if (subtasks.length > 0) {
-					subtasks.forEach(sub => sub.style.display = 'grid');
-					if (icon) {
-						icon.classList.add('expanded');
-						icon.innerText = '▼';
-					}
-				}
-			});
-		});
-	</script>
+    // Функция для переключения видимости
+    function toggleSubtasks(parentId, iconElement) {
+      const subtasks = document.querySelectorAll(`.task-row[data-parent-id="${parentId}"]`);
+      const isExpanded = iconElement.classList.contains('expanded');
+
+      if (isExpanded) {
+        // Сворачиваем
+        subtasks.forEach(sub => sub.style.display = 'none');
+        iconElement.classList.remove('expanded');
+        iconElement.innerText = '▶';
+        removeFromStorage(parentId);
+      } else {
+        // Разворачиваем
+        subtasks.forEach(sub => sub.style.display = 'grid');
+        iconElement.classList.add('expanded');
+        iconElement.innerText = '▼';
+        saveToStorage(parentId);
+      }
+    }
+
+    // Функции для работы с памятью браузера
+    function saveToStorage(id) {
+      let expanded = JSON.parse(localStorage.getItem('expandedTasks') || '[]');
+      if (!expanded.includes(id)) expanded.push(id);
+      localStorage.setItem('expandedTasks', JSON.stringify(expanded));
+    }
+
+    function removeFromStorage(id) {
+      let expanded = JSON.parse(localStorage.getItem('expandedTasks') || '[]');
+      expanded = expanded.filter(item => item !== id);
+      localStorage.setItem('expandedTasks', JSON.stringify(expanded));
+    }
+
+    // ПРИ ЗАГРУЗКЕ СТРАНИЦЫ: открываем те, что были развернуты
+    window.addEventListener('DOMContentLoaded', () => {
+      const expanded = JSON.parse(localStorage.getItem('expandedTasks') || '[]');
+      expanded.forEach(id => {
+        const subtasks = document.querySelectorAll(`.task-row[data-parent-id="${id}"]`);
+        const icon = document.querySelector(`.toggle-icon[onclick*="'${id}'"]`);
+
+        if (subtasks.length > 0) {
+          subtasks.forEach(sub => sub.style.display = 'grid');
+          if (icon) {
+            icon.classList.add('expanded');
+            icon.innerText = '▼';
+          }
+        }
+      });
+    });
+  </script>
 </body>
 
 </html>

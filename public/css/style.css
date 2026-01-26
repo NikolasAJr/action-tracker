@@ -1,10 +1,29 @@
 :root {
+	/* Размеры */
 	--sidebar-width: 64px;
 	--panel-width: 600px;
-	--bg-color: #f4f7f6;
-	--accent-color: #6b7280;
-	--text-main: #1f2937;
-	--border-color: #e5e7eb;
+
+	/* Основные фоны */
+	--bg-color: #f8fafc; /* Светлый серо-голубой (Slate 50) */
+	--sidebar-bg: #0f172a; /* Глубокий индиго-черный (Slate 900) */
+	--table-header-bg: #f1f5f9; /* Светлый Slate 100 */
+	--task-color: #ffffff; /* Чистый белый */
+	--subtask-color: #f0f7ff; /* Нежно-голубой для подзадач */
+
+	/* Акценты и границы */
+	--accent-color: #4f46e5; /* Насыщенный Indigo 600 */
+	--task-r-border-color: #f97316; /* Яркий оранжевый (Orange 500) */
+	--border-color: #e2e8f0; /* Спокойный Slate 200 */
+	--line-color: #cbd5e1; /* Цвет линий связи */
+
+	/* Текст */
+	--text-main: #334155; /* Slate 700 */
+	--text-muted: #64748b; /* Slate 500 */
+
+	/* Сетка (Calc для идеального выравнивания) */
+	--task-grid: 2.5fr 50px 1.5fr 1.2fr 1fr 1.2fr 80px;
+	--subtask-margin-left: 28px;
+	--subtask-grid: 2.32fr 50px 1.5fr 1.2fr 1fr 1.2fr 80px;
 }
 
 * {
@@ -28,7 +47,7 @@ body {
 /* Sidebar */
 .sidebar {
 	width: var(--sidebar-width);
-	background: #111827;
+	background: var(--sidebar-bg);
 	display: flex;
 	flex-direction: column;
 	align-items: center;
@@ -49,6 +68,38 @@ body {
 }
 .icon.active {
 	color: var(--accent-color);
+}
+
+.subtask-count {
+	display: flex;
+	justify-content: center;
+	align-items: center;
+}
+
+/* Оформляем цифру как круглую метку */
+.subtask-badge {
+	display: inline-flex;
+	align-items: center;
+	justify-content: center;
+	background: var(--table-header-bg); /* Светлый нейтральный фон */
+	color: var(--text-muted);
+	font-size: 11px;
+	font-weight: 700;
+	width: 20px;
+	height: 20px;
+	border-radius: 50%;
+	border: 1px solid var(--border-color);
+}
+
+/* Если подзадач много (например, > 5), можно выделить их цветом акцента */
+.subtask-badge.has-many {
+	background: var(--accent-color);
+	color: white;
+	border-color: var(--accent-color);
+}
+
+.icon:hover {
+	color: white;
 }
 
 /* Main Content */
@@ -88,40 +139,86 @@ body {
 
 /* Table Style */
 .task-table {
-	background: white;
-	border-radius: 12px;
-	box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
+	/* box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1); */
 	overflow: hidden;
 }
 
 .table-header,
-.task-row {
+.task-row,
+.inline-add-form,
+.main-add-row {
 	display: grid;
-	grid-template-columns: 2.5fr 1.5fr 1.2fr 1fr 1.2fr 0.5fr;
-	padding: 15px 25px;
-	border-bottom: 1px solid var(--border-color);
+	grid-template-columns: var(--task-grid);
 	align-items: center;
+}
+
+.table-header {
+	position: sticky;
+	top: 0;
+	z-index: 10;
+	padding: 15px 25px;
+	border: 1px solid var(--border-color);
+	border-top-left-radius: 8px;
+	border-top-right-radius: 8px;
+	background: var(--table-color);
+	font-weight: 500;
+	font-size: 14px;
+	text-align: center;
+	color: #6b7280;
+}
+
+.task-row {
+	padding: 8px 12px;
+	border-bottom: 1px solid var(--border-color);
+	cursor: pointer;
+	transition: background 0.2s;
+	background-color: var(--task-color);
+	font-weight: 500;
+	font-size: 14px;
+}
+
+.task-row:not(.is-subtask, .inline-add-form) {
+	position: relative;
+	border-left: 2px solid var(--task-r-border-color);
+}
+
+.task-row.is-subtask > .task-clickable-area > span:first-child {
+	/* padding-left: 28px; */
 }
 
 /* Смещение для подзадач */
 .task-row.is-subtask {
-	padding-left: 50px;
-	background: #fafafa;
+	margin-left: var(--subtask-margin-left);
+	grid-template-columns: var(--subtask-grid);
+	background: var(--subtask-color);
 	position: relative;
 	border-bottom: 1px dashed var(--border-color);
+	border-radius: 4px;
 }
 
 /* Линия связи */
 .task-row.is-subtask::before {
 	content: '';
 	position: absolute;
-	left: 25px;
-	top: -15px; /* Соединение с предыдущей строкой */
-	bottom: 50%;
-	width: 15px;
-	border-left: 2px solid #cbd5e1;
-	border-bottom: 2px solid #cbd5e1;
+	left: -28px;
+	top: 0px; /* Соединение с предыдущей строкой */
+	bottom: 40%;
+	width: 12px;
+	border-left: 2px solid var(--line-color);
+	border-bottom: 2px solid var(--line-color);
 	border-bottom-left-radius: 4px;
+}
+
+.task-row.is-subtask:hover {
+	background: #f9fafb !important;
+}
+
+.task-row.is-subtask:hover .task-actions {
+	opacity: 0.6;
+}
+
+.toggle-icon.expanded {
+	transform: rotate(120deg);
 }
 
 /* Скрываем линию у первой подзадачи, если нужно, или настраиваем отступы */
@@ -129,23 +226,12 @@ body {
 	background: #f3f4f6 !important;
 }
 
-.table-header {
-	background: #f9fafb;
-	font-weight: 600;
-	font-size: 14px;
-	color: #6b7280;
-}
-
-.task-row {
-	cursor: pointer;
-	transition: background 0.2s;
-}
 .task-row:hover {
 	background: #f3f4f6;
 }
 
 /* Right Panel */
-.details-panel {
+/* .details-panel {
 	position: fixed;
 	right: calc(var(--panel-width) * -1);
 	top: 0;
@@ -156,24 +242,40 @@ body {
 	transition: right 0.4s cubic-bezier(0.4, 0, 0.2, 1);
 	z-index: 1000;
 	padding: 40px;
-}
+} */
 
 .details-panel.open {
 	right: 0;
 }
 
+.details-panel {
+	position: fixed;
+	right: calc(var(--panel-width) * -1);
+	top: 0;
+	width: var(--panel-width);
+	height: 100%;
+
+	background: rgba(255, 255, 255, 0.7);
+	backdrop-filter: blur(12px) saturate(160%);
+	-webkit-backdrop-filter: blur(12px) saturate(160%);
+
+	border-left: 1px solid rgba(255, 255, 255, 0.5);
+	box-shadow: -10px 0 40px rgba(0, 0, 0, 0.08);
+
+	transition: right 0.5s cubic-bezier(0.16, 1, 0.3, 1);
+	z-index: 1000;
+	padding: 40px;
+}
+
 /* Overlay & Blur */
 .overlay {
 	position: fixed;
-	top: 0;
-	left: 0;
-	width: 100%;
-	height: 100%;
-	background: rgba(0, 0, 0, 0.2);
-	backdrop-filter: blur(8px); /* Размытие фона */
+	inset: 0;
+	background: rgba(15, 23, 42, 0.15);
+	backdrop-filter: blur(2px);
 	visibility: hidden;
 	opacity: 0;
-	transition: opacity 0.4s;
+	transition: opacity 0.4s ease;
 	z-index: 999;
 }
 
@@ -211,6 +313,10 @@ body {
 	outline: none;
 }
 
+.is-subtask.inline-add-form > input:nth-child(2) {
+	margin-left: 28px; /* визуальный отступ под иерархию */
+}
+
 /* Стили для кнопок в строке */
 .mini-add-btn,
 .add-btn-large {
@@ -234,10 +340,7 @@ body {
 
 /* Настройка сетки для форм (чтобы совпадала с хэдером) */
 .inline-add-form {
-	display: grid;
-	grid-template-columns: 2.5fr 1.5fr 1.2fr 1fr 1.2fr 0.5fr;
-	gap: 10px;
-	align-items: center;
+	/* gap: 10px; */
 }
 
 /* Скрываем элемент полностью */
@@ -285,40 +388,123 @@ body {
 	z-index: 1;
 }
 
-.add-task-container {
-	position: relative;
-	margin-top: 40px;
-	padding: 25px 20px 20px 20px; /* Верхний отступ больше, чтобы заголовок не мешал инпутам */
-	border: 1px solid var(--border-color);
-	border-radius: 12px;
-	background-color: white; /* Или прозрачный, если форма должна сливаться с фоном */
-	box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
-}
-
-.add-task-title {
-	position: absolute;
-	top: -11px; /* Поднимаем заголовок ровно на линию рамки */
-	left: 20px;
-	background-color: var(--bg-color); /* Цвет фона страницы, чтобы "перекрыть" линию */
-	padding: 0 6px; /* Отступы по бокам, чтобы линия не касалась букв */
-	font-size: 14px;
-	font-weight: 600;
-	color: var(--accent-color);
-	text-transform: uppercase;
-	letter-spacing: 0.5px;
-}
-
-/* Настраиваем форму внутри контейнера, чтобы она не дублировала стили таблицы */
-.main-add-row {
-	border-bottom: none !important; /* Убираем лишние линии */
-	padding: 0 !important;
-	background: transparent !important;
-}
-
 /* Если нужно, чтобы форма внутри тоже была сеткой как таблица */
 .main-add-row {
-	display: grid;
-	grid-template-columns: 2.5fr 1.5fr 1.2fr 1fr 1.2fr 0.5fr;
 	gap: 15px;
+	border-bottom-left-radius: 8px;
+	border-bottom-right-radius: 8px;
+	padding: 0 0 0 8px !important;
+	background: var(--table-color);
+	font-weight: 500;
+	font-size: 14px;
+	color: #6b7280;
+	border: 1px solid var(--border-color);
+	border-top: 0px;
+}
+
+.main-add-row:focus-within {
+	background: #eef2ff;
+	border-radius: 8px;
+}
+
+.task-clickable-area {
+	display: contents;
+}
+
+.task-actions {
+	padding-left: 8px;
+	opacity: 0;
+	transition:
+		opacity 0.25s ease,
+		transform 0.25s ease;
+	pointer-events: none;
+	display: flex;
+	gap: 4px;
 	align-items: center;
+}
+
+.task-row:hover .task-actions {
+	opacity: 1;
+	transform: translateX(-5px);
+}
+
+.task-actions button,
+.task-actions a {
+	position: relative;
+	background: transparent;
+	border: none;
+	color: #9ca3af; /* серый */
+	font-size: 14px;
+	cursor: pointer;
+	padding: 4px;
+	transition:
+		color 0.15s ease,
+		background 0.15s ease;
+	pointer-events: auto;
+}
+
+.task-actions button:hover,
+.task-actions a:hover {
+	color: var(--accent-color);
+	background: #e5e7eb;
+	border-radius: 4px;
+}
+
+.task-actions button::after,
+.task-actions a::after {
+	content: attr(title);
+	position: absolute;
+	bottom: 130%;
+	left: 50%;
+	transform: translateX(-50%);
+	background: #111827;
+	color: white;
+	font-size: 11px;
+	padding: 4px 8px;
+	border-radius: 6px;
+	white-space: nowrap;
+	opacity: 0;
+	pointer-events: none;
+	transition: opacity 0.15s ease;
+	z-index: 50;
+}
+
+.task-actions button:hover::after,
+.task-actions a:hover::after {
+	opacity: 1;
+}
+
+.task-status {
+	padding: 4px 8px;
+	border-radius: 6px;
+	font-size: 12px;
+	font-weight: 500;
+	text-align: center;
+}
+
+.status-open {
+	background: #e0e7ff;
+	color: #4338ca;
+} /* Indigo */
+.status-progress {
+	background: #fef3c7;
+	color: #92400e;
+} /* Amber */
+.status-done {
+	background: #dcfce7;
+	color: #15803d;
+} /* Green */
+.status-overdue {
+	background: #fee2e2;
+	color: #b91c1c;
+} /* Red */
+
+.days-critical {
+	color: #991b1b;
+	font-weight: 700;
+}
+
+.days-warning {
+	color: #92400e;
+	font-weight: 600;
 }
