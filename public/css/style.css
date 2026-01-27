@@ -6,7 +6,7 @@
 	/* Основные фоны */
 	--bg-color: #f8fafc; /* Светлый серо-голубой (Slate 50) */
 	--sidebar-bg: #0f172a; /* Глубокий индиго-черный (Slate 900) */
-	--table-header-bg: #f1f5f9; /* Светлый Slate 100 */
+	--table-header-bg: #d3e6f9; /* Светлый Slate 100 */
 	--task-color: #ffffff; /* Чистый белый */
 	--subtask-color: #f0f7ff; /* Нежно-голубой для подзадач */
 
@@ -21,9 +21,9 @@
 	--text-muted: #64748b; /* Slate 500 */
 
 	/* Сетка (Calc для идеального выравнивания) */
-	--task-grid: 2.5fr 50px 1.5fr 1.2fr 1fr 1.2fr 80px;
+	--task-grid: 2.5fr 1.5fr 1.5fr 1.2fr 1fr 1.2fr 80px;
 	--subtask-margin-left: 28px;
-	--subtask-grid: 2.32fr 50px 1.5fr 1.2fr 1fr 1.2fr 80px;
+	--subtask-grid: 2.32fr 1.5fr 1.5fr 1.2fr 1fr 1.2fr 80px;
 }
 
 * {
@@ -141,6 +141,7 @@ body {
 .task-table {
 	/* box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1); */
 	overflow: hidden;
+	text-align: center;
 }
 
 .table-header,
@@ -160,7 +161,7 @@ body {
 	border: 1px solid var(--border-color);
 	border-top-left-radius: 8px;
 	border-top-right-radius: 8px;
-	background: var(--table-color);
+	background: var(--table-header-bg);
 	font-weight: 500;
 	font-size: 14px;
 	text-align: center;
