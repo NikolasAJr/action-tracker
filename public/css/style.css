@@ -161,7 +161,7 @@ body {
 	font-weight: 500;
 	font-size: 14px;
 }
-
+/* 
 .table-header > span {
 	border: 1px solid rgb(247, 206, 196);
 }
@@ -170,7 +170,7 @@ body {
 }
 .inline-add-form > span {
 	border: 1px solid rgb(247, 206, 196);
-}
+} */
 
 .task-row:not(.is-subtask, .inline-add-form) {
 	position: relative;
