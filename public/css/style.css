@@ -6,7 +6,7 @@
 	/* Основные фоны */
 	--bg-color: #f8fafc; /* Светлый серо-голубой (Slate 50) */
 	--sidebar-bg: #0f172a; /* Глубокий индиго-черный (Slate 900) */
-	--table-header-bg: #f1f5f9; /* Светлый Slate 100 */
+	--table-header-bg: #d3e6f9; /* Светлый Slate 100 */
 	--task-color: #ffffff; /* Чистый белый */
 	--subtask-color: #f0f7ff; /* Нежно-голубой для подзадач */
 
@@ -21,9 +21,12 @@
 	--text-muted: #64748b; /* Slate 500 */
 
 	/* Сетка (Calc для идеального выравнивания) */
-	--task-grid: 2.5fr 50px 1.5fr 1.2fr 1fr 1.2fr 80px;
+	/* Задача - Кол-во подзадач - Отв. - Срок - Дни - Статус - Кнопки */
+	--task-grid: 3fr 0.5fr 2fr 0.5fr 1fr 1fr 120px;
+	--subtask-grid: 2.82fr 0.5fr 2fr 0.5fr 1fr 1fr 120px;
+	--row-padding: 2px 12px;
 	--subtask-margin-left: 28px;
-	--subtask-grid: 2.32fr 50px 1.5fr 1.2fr 1fr 1.2fr 80px;
+	--addtask-margin-left: 28px;
 }
 
 * {
@@ -118,29 +121,11 @@ body {
 	margin-bottom: 30px;
 }
 
-.add-task-form {
-	display: flex;
-	gap: 10px;
-}
-.add-task-form input {
-	padding: 10px;
-	border: 1px solid var(--border-color);
-	border-radius: 8px;
-	outline: none;
-}
-.add-task-form button {
-	padding: 10px 20px;
-	background: var(--accent-color);
-	color: white;
-	border: none;
-	border-radius: 8px;
-	cursor: pointer;
-}
-
 /* Table Style */
 .task-table {
 	/* box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1); */
 	overflow: hidden;
+	text-align: center;
 }
 
 .table-header,
@@ -160,7 +145,7 @@ body {
 	border: 1px solid var(--border-color);
 	border-top-left-radius: 8px;
 	border-top-right-radius: 8px;
-	background: var(--table-color);
+	background: var(--table-header-bg);
 	font-weight: 500;
 	font-size: 14px;
 	text-align: center;
@@ -168,7 +153,7 @@ body {
 }
 
 .task-row {
-	padding: 8px 12px;
+	padding: var(--row-padding);
 	border-bottom: 1px solid var(--border-color);
 	cursor: pointer;
 	transition: background 0.2s;
@@ -177,13 +162,19 @@ body {
 	font-size: 14px;
 }
 
+.table-header > span {
+	border: 1px solid rgb(247, 206, 196);
+}
+.task-row > div > span {
+	border: 1px solid rgb(247, 206, 196);
+}
+.inline-add-form > span {
+	border: 1px solid rgb(247, 206, 196);
+}
+
 .task-row:not(.is-subtask, .inline-add-form) {
 	position: relative;
 	border-left: 2px solid var(--task-r-border-color);
-}
-
-.task-row.is-subtask > .task-clickable-area > span:first-child {
-	/* padding-left: 28px; */
 }
 
 /* Смещение для подзадач */
@@ -300,21 +291,21 @@ body {
 	background: #fdfdfd;
 }
 
+/* Настраиваем внешний вид инпутов в строке, чтобы они не растягивали сетку */
 .inline-add-form input {
+	border: 1px solid var(--border-color);
+	border-radius: 4px;
+	padding: 4px;
+	width: 100%;
 	background: transparent;
-	border: 1px solid transparent;
-	padding: 5px;
 	font-size: 14px;
 	width: 100%;
+	text-align: center;
 }
 
 .inline-add-form input:focus {
 	border-bottom-color: var(--accent-color);
 	outline: none;
-}
-
-.is-subtask.inline-add-form > input:nth-child(2) {
-	margin-left: 28px; /* визуальный отступ под иерархию */
 }
 
 /* Стили для кнопок в строке */
@@ -330,7 +321,6 @@ body {
 
 .add-btn-large {
 	padding: 8px 15px;
-	grid-column: span 1;
 }
 
 /* Подсветка строки добавления подзадачи */
@@ -348,12 +338,8 @@ body {
 	display: none !important;
 }
 
-/* Настраиваем внешний вид инпутов в строке, чтобы они не растягивали сетку */
-.inline-add-form input {
-	border: 1px solid var(--border-color);
-	border-radius: 4px;
-	padding: 4px 8px;
-	width: 90%;
+.invisible {
+	visibility: hidden !important;
 }
 
 .mini-add-btn {
@@ -390,10 +376,11 @@ body {
 
 /* Если нужно, чтобы форма внутри тоже была сеткой как таблица */
 .main-add-row {
-	gap: 15px;
+	gap: 0px;
 	border-bottom-left-radius: 8px;
 	border-bottom-right-radius: 8px;
-	padding: 0 0 0 8px !important;
+	padding: var(--row-padding);
+	/* padding-left: var(--addtask-margin-left) !important; */
 	background: var(--table-color);
 	font-weight: 500;
 	font-size: 14px;

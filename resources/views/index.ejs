@@ -24,14 +24,15 @@
         <div class="task-table">
           <div class="table-header">
             <span>Задача</span>
-            <span>Ответственный</span>
-            <span>Срок</span>
-            <span>Дней</span>
             <span title="Подзадачи" style="display: flex; justify-content: center; align-items: center;">
               <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="opacity: 0.6;">
                 <path d="M3 3h6v6H3zM15 15h6v6h-6zM15 3h6v6h-6zM9 6h6M12 6v12M12 18h3" />
               </svg>
             </span>
+            <span>Ответственный</span>
+            <span>Срок</span>
+            <span>Дней</span>
+
             <span>Статус</span>
             <span></span>
           </div>
@@ -39,26 +40,14 @@
           <% tasks.forEach(task=> { %>
           <% const subtaskCount = tasks.filter(t => t.parent_id === task.id).length; %>
           <% const hasChildren = subtaskCount > 0; %>
-
           <div class="task-row <%= task.isSubtask ? 'is-subtask' : '' %>" <% if(task.isSubtask) { %> data-parent-id="<%= task.parent_id %>" style="display: none;" <% } %>>
-
             <div class="task-clickable-area" onclick="openDetails('<%= task.title %>', '<%= task.assigned_to %>')">
-
               <span style="display: flex; align-items: center; gap: 8px;">
                 <% if (!task.isSubtask) { %>
                 <span class="toggle-icon" onclick="event.stopPropagation(); toggleSubtasks('<%= task.id %>', this)" style="<%= hasChildren ? '' : 'visibility: hidden;' %>">▶</span>
                 <% } %>
                 <%= task.title %>
               </span>
-
-              <span><%= task.assigned_to %></span>
-
-              <span><%= task.deadline_at %></span>
-
-              <span class="<%= task.daysLeft <= 1 ? 'days-critical' : task.daysLeft <= 3 ? 'days-warning' : '' %>">
-                <%= task.daysLeft %>
-              </span>
-
               <span class="subtask-count">
                 <% if (!task.isSubtask && subtaskCount > 0) { %>
                 <span class="subtask-badge <%= subtaskCount > 5 ? 'has-many' : '' %>">
@@ -66,10 +55,14 @@
                 </span>
                 <% } %>
               </span>
-
+              <span><%= task.assigned_to %></span>
+              <span><%= task.deadline_at %></span>
+              <span class="<%= task.daysLeft <= 1 ? 'days-critical' : task.daysLeft <= 3 ? 'days-warning' : '' %>">
+                <%= task.daysLeft %>
+              </span>
               <span class="task-status <%= task.status?.toLowerCase() === 'просрочено' ? 'status-overdue' : 
-                                     task.status?.toLowerCase() === 'в работе' ? 'status-progress' :
-                                     task.status?.toLowerCase() === 'готово' ? 'status-done' : 'status-open' %>">
+                task.status?.toLowerCase() === 'в работе' ? 'status-progress' :
+                task.status?.toLowerCase() === 'готово' ? 'status-done' : 'status-open' %>">
                 <%= task.status %>
               </span>
             </div>
@@ -86,9 +79,11 @@
           <form action="/tasks" method="POST" id="form-sub-<%= task.id %>" class="task-row is-subtask inline-add-form hidden">
             <input type="hidden" name="parent_id" value="<%= task.id %>">
             <input type="text" name="title" placeholder="Название подзадачи..." required>
+            <input type="text" readonly>
             <input type="text" name="assigned_to" placeholder="Ответственный" required>
             <input type="date" name="deadline_at" required>
-            <input type="text" readonly> <input type="text" readonly> <input type="text" name="status" value="В работе" required>
+            <input type="text" readonly>
+            <input type="text" name="status" value="В работе" required>
             <button type="submit" class="mini-add-btn">ОК</button>
           </form>
           <% } %>
@@ -96,10 +91,10 @@
 
           <form action="/tasks" method="POST" class="task-row inline-add-form main-add-row">
             <input type="text" name="title" placeholder="Начните ввод новой задачи..." required>
+            <input type="text" readonly class="invisible">
             <input type="text" name="assigned_to" placeholder="Ответственный" required>
             <input type="date" name="deadline_at" required>
-            <input type="text" readonly>
-            <input type="text" readonly>
+            <input type="text" readonly class="invisible">
             <input type="text" name="status" placeholder="Статус" required>
             <button type="submit" class="add-btn-large">Добавить задачу</button>
           </form>
@@ -133,28 +128,6 @@
     function closeDetails() {
       document.getElementById('details-panel').classList.remove('open');
       document.getElementById('overlay').classList.remove('visible');
-    }
-
-    function addSubtask(parentId) {
-      // Можно либо открывать модальное окно, 
-      // либо просто скроллить к основной форме и добавлять hidden input
-      let form = document.querySelector('.add-task-form');
-
-      // Удаляем старый parent_id если был
-      let oldInput = document.getElementById('parent-id-input');
-      if (oldInput) oldInput.remove();
-
-      // Добавляем новый
-      let input = document.createElement('input');
-      input.type = 'hidden';
-      input.name = 'parent_id';
-      input.id = 'parent-id-input';
-      input.value = parentId;
-      form.appendChild(input);
-
-      // Подсветим форму
-      form.querySelector('input[name="title"]').placeholder = "Подзадача...";
-      form.querySelector('input[name="title"]').focus();
     }
 
     function toggleSubtaskForm(taskId) {
