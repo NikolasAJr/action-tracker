@@ -485,6 +485,14 @@ body {
 	background: #fee2e2;
 	color: #b91c1c;
 } /* Red */
+.status-paused {
+	background: #e0e7ff;
+	color: #6b21a8;
+} /* Purple */
+.status-cancelled {
+	background: #f3f4f6;
+	color: #374151;
+} /* Gray */
 
 .days-critical {
 	color: #991b1b;
@@ -494,4 +502,44 @@ body {
 .days-warning {
 	color: #92400e;
 	font-weight: 600;
+}
+
+/* Стиль для выпадающего списка при редактировании */
+.status-select {
+	font-family: inherit;
+	font-size: 12px;
+	padding: 2px 4px;
+	border-radius: 4px;
+	border: 1px solid var(--accent-color);
+	background: white;
+	color: var(--text-main);
+	cursor: pointer;
+	outline: none;
+}
+
+.task-title-wrapper .edit-icon-btn {
+	opacity: 0;
+	transition: opacity 0.2s;
+	background: none;
+	border: none;
+	cursor: pointer;
+	padding: 0 5px;
+}
+.task-row:hover .edit-icon-btn {
+	opacity: 0.5;
+}
+.edit-icon-btn:hover {
+	opacity: 1 !important;
+	color: var(--accent-color);
+}
+
+.edit-title-input {
+	width: 100%;
+}
+
+.task-title {
+	display: flex;
+	align-items: center;
+	gap: 6px;
+	width: 100%;
 }
