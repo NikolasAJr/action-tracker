@@ -13,6 +13,7 @@
 	/* Акценты и границы */
 	--accent-color: #4f46e5; /* Насыщенный Indigo 600 */
 	--task-r-border-color: #f97316; /* Яркий оранжевый (Orange 500) */
+	--task-r-border-left: 2px;
 	--border-color: #e2e8f0; /* Спокойный Slate 200 */
 	--line-color: #cbd5e1; /* Цвет линий связи */
 
@@ -21,9 +22,9 @@
 	--text-muted: #64748b; /* Slate 500 */
 
 	/* Сетка (Calc для идеального выравнивания) */
-	/* Задача - Кол-во подзадач - Отв. - Срок - Дни - Статус - Кнопки */
-	--task-grid: 3fr 1fr 0.5fr 2fr 0.5fr 1fr 1fr 120px;
-	--subtask-grid: 2.82fr 1fr 0.5fr 2fr 0.5fr 1fr 1fr 120px;
+	/* Задача/Катег/Кол-во подзадач/Отв/Срок/Дни/Статус/Кнопки */
+	--task-grid: auto 90px 70px 110px 80px 100px 100px 120px;
+	--subtask-grid: auto 90px 70px 110px 80px 100px 100px 120px;
 	--row-padding: 2px 12px;
 	--subtask-margin-left: 28px;
 	--addtask-margin-left: 28px;
@@ -174,7 +175,7 @@ body {
 
 .task-row:not(.is-subtask, .inline-add-form) {
 	position: relative;
-	border-left: 2px solid var(--task-r-border-color);
+	border-left: var(--task-r-border-left) solid var(--task-r-border-color);
 }
 
 /* Смещение для подзадач */
@@ -517,6 +518,12 @@ body {
 	outline: none;
 }
 
+.task-title-wrapper,
+.task-category-wrapper {
+	width: 100%;
+	text-align: left;
+}
+
 .task-title-wrapper .edit-icon-btn,
 .task-category-wrapper .edit-icon-btn {
 	opacity: 0;
@@ -542,5 +549,9 @@ body {
 	display: flex;
 	align-items: center;
 	gap: 6px;
+	width: 100%;
+}
+
+.task-title-text {
 	width: 100%;
 }
