@@ -25,6 +25,7 @@
           <div class="search-wrapper" style="margin-bottom: 20px;">
             <input type="text" id="taskSearch" placeholder="🔍 Поиск задачи или исполнителя..." onkeyup="filterTasks()" style="width: 100%; padding: 10px; border: 1px solid var(--border-color); border-radius: 8px;">
           </div>
+
           <div class="table-header">
             <span>Задача</span>
             <span>Категория</span>
@@ -36,23 +37,24 @@
             <span>Ответственный</span>
             <span>Срок</span>
             <span>Дней</span>
-
             <span>Статус</span>
             <span></span>
           </div>
 
-          <% tasks.forEach(task=> { %>
+          <% tasks.forEach(task => { %>
           <% const subtaskCount = tasks.filter(t => t.parent_id === task.id).length; %>
           <% const hasChildren = subtaskCount > 0; %>
-          <div class="task-row <%= task.isSubtask ? 'is-subtask' : '' %>" <% if(task.isSubtask) { %> data-parent-id="<%= task.parent_id %>" style="display: none;" <% } %>>
-            <div class="task-clickable-area" onclick="openDetails('<%= task.title %>', '<%= task.assigned_to %>')">
+
+          <div class="task-row <%= task.isSubtask ? 'is-subtask' : '' %>" <% if (task.isSubtask) { %> data-parent-id="<%= task.parent_id %>" style="display: none;" <% } %>>
+            <div class="task-clickable-area">
               <span class="task-title">
                 <% if (!task.isSubtask) { %>
                 <span class="toggle-icon" onclick="event.stopPropagation(); toggleSubtasks('<%= task.id %>', this)" style="<%= hasChildren ? '' : 'visibility: hidden;' %>">▶</span>
                 <% } %>
-
                 <span class="task-title-wrapper">
-                  <span class="task-title-text"><%= task.title %></span>
+                  <span class="task-title-text" style="cursor: pointer;" onclick="openDetails('<%= task.title %>', '<%= task.assigned_to %>')">
+                    <%= task.title %>
+                  </span>
                   <button class="edit-icon-btn" onclick="event.stopPropagation(); editTask(this.previousElementSibling, '<%= task.id %>', 'title')">✎</button>
                 </span>
               </span>
@@ -69,26 +71,48 @@
                 </span>
                 <% } %>
               </span>
-              <span><%= task.assigned_to %></span>
-              <span><%= task.deadline_at %></span>
+
+              <span class="task-assignee-wrapper">
+                <span class="task-assignee-text"><%= task.assigned_to %></span>
+                <button class="edit-icon-btn" onclick="event.stopPropagation(); editTask(this.previousElementSibling, '<%= task.id %>', 'assigned_to')">✎</button>
+              </span>
+
+              <span class="task-deadline-wrapper">
+                <span class="task-deadline-text"><%= task.deadline_at %></span>
+                <button class="edit-icon-btn" onclick="event.stopPropagation(); editTask(this.previousElementSibling, '<%= task.id %>', 'deadline_at')">✎</button>
+              </span>
+
               <span class="<%= task.daysLeft <= 1 ? 'days-critical' : task.daysLeft <= 3 ? 'days-warning' : '' %>">
                 <%= task.daysLeft %>
               </span>
+
               <span class="task-status <%= task.status?.toLowerCase() === 'просрочено' ? 'status-overdue' : 
-                task.status?.toLowerCase() === 'открыто' ? 'status-open' :
-                task.status?.toLowerCase() === 'в работе' ? 'status-progress' :
-                task.status?.toLowerCase() === 'готово' ? 'status-done' : 
-                task.status?.toLowerCase() === 'на паузе' ? 'status-paused' :
-                task.status?.toLowerCase() === 'отменено' ? 'status-cancelled' : 'status-open' %>" onclick="event.stopPropagation(); editStatus(this, '<%= task.id %>')" data-original-value="<%= task.status %>">
+                  task.status?.toLowerCase() === 'открыто' ? 'status-open' :
+                  task.status?.toLowerCase() === 'в работе' ? 'status-progress' :
+                  task.status?.toLowerCase() === 'готово' ? 'status-done' : 
+                  task.status?.toLowerCase() === 'на паузе' ? 'status-paused' :
+                  task.status?.toLowerCase() === 'отменено' ? 'status-cancelled' : 'status-open' %>" onclick="event.stopPropagation(); editStatus(this, '<%= task.id %>')" data-original-value="<%= task.status %>">
                 <%= task.status %>
               </span>
             </div>
 
             <div class="task-actions">
               <% if (!task.isSubtask) { %>
-              <button onclick="event.stopPropagation(); toggleSubtaskForm('<%= task.id %>')" title="Добавить подзадачу">➕</button>
+              <button onclick="event.stopPropagation(); toggleSubtaskForm('<%= task.id %>')" title="Добавить подзадачу">
+                <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                  <line x1="12" y1="5" x2="12" y2="19"></line>
+                  <line x1="5" y1="12" x2="19" y2="12"></line>
+                </svg>
+              </button>
               <% } %>
-              <a href="/tasks/delete/<%= task.id %>" class="delete-btn" title="Удалить задачу" onclick="event.stopPropagation();">🗑️</a>
+              <form action="/tasks/delete/<%= task.id %>" method="POST" class="delete-form" onclick="event.stopPropagation();" onsubmit="return confirm('Удалить задачу?');">
+                <button type="submit" class="delete-btn" title="Удалить задачу">
+                  <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                    <polyline points="3 6 5 6 21 6"></polyline>
+                    <path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"></path>
+                  </svg>
+                </button>
+              </form>
             </div>
           </div>
 
@@ -96,12 +120,15 @@
           <form action="/tasks" method="POST" id="form-sub-<%= task.id %>" class="task-row is-subtask inline-add-form hidden">
             <input type="hidden" name="parent_id" value="<%= task.id %>">
             <input type="text" name="title" placeholder="Название подзадачи..." required>
-            <input type="text" name="category" placeholder="Категория" required>
+            <input type="text" name="category" placeholder="Категория">
             <input type="text" readonly>
             <input type="text" name="assigned_to" placeholder="Ответственный" required>
             <input type="date" name="deadline_at" required>
             <input type="text" readonly>
-            <input type="text" name="status" value="Открыто" required>
+
+            <input type="hidden" name="status" value="Открыто">
+            <span class="task-status status-open" onclick="event.stopPropagation(); editStatus(this, null, true)">Открыто</span>
+
             <button type="submit" class="mini-add-btn">ОК</button>
           </form>
           <% } %>
@@ -109,12 +136,15 @@
 
           <form action="/tasks" method="POST" class="task-row inline-add-form main-add-row">
             <input type="text" name="title" placeholder="Начните ввод новой задачи..." required>
-            <input type="text" name="category" placeholder="Категория" required>
+            <input type="text" name="category" placeholder="Категория">
             <input type="text" readonly class="invisible">
             <input type="text" name="assigned_to" placeholder="Ответственный" required>
             <input type="date" name="deadline_at" required>
             <input type="text" readonly class="invisible">
-            <input type="text" name="status" placeholder="Статус" required>
+
+            <input type="hidden" name="status" value="Открыто">
+            <span class="task-status status-open" onclick="event.stopPropagation(); editStatus(this, null, true)">Открыто</span>
+
             <button type="submit" class="add-btn-large">Добавить задачу</button>
           </form>
         </div>
@@ -122,7 +152,6 @@
     </main>
 
     <div id="overlay" class="overlay" onclick="closeDetails()"></div>
-
     <aside id="details-panel" class="details-panel">
       <button class="close-btn" onclick="closeDetails()">✕</button>
       <div class="panel-content">
@@ -135,7 +164,6 @@
       </div>
     </aside>
   </div>
-
   <script src="/main.js"></script>
 </body>
 
