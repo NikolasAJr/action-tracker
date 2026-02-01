@@ -499,12 +499,10 @@ body {
 	color: #991b1b;
 	font-weight: 700;
 }
-
 .days-warning {
 	color: #92400e;
 	font-weight: 600;
 }
-
 /* Стиль для выпадающего списка при редактировании */
 .status-select {
 	font-family: inherit;
@@ -517,13 +515,13 @@ body {
 	cursor: pointer;
 	outline: none;
 }
-
 .task-title-wrapper,
 .task-category-wrapper {
-	width: 100%;
-	text-align: left;
+	display: inline-flex; /* Позволяет обертке вести себя как текст, но внутри использовать flex */
+	align-items: center; /* Центрирует иконку и инпут по вертикали */
+	gap: 8px; /* Расстояние между текстом/инпутом и кнопкой */
+	width: 100%; /* Чтобы контейнер занимал всю ширину задачи */
 }
-
 .task-title-wrapper .edit-icon-btn,
 .task-category-wrapper .edit-icon-btn {
 	opacity: 0;
@@ -540,18 +538,20 @@ body {
 	opacity: 1 !important;
 	color: var(--accent-color);
 }
-
-.edit-title-input {
-	width: 100%;
+.task-title-text {
+	flex-grow: 1; /* Текст или инпут заберут всё свободное место */
 }
-
+.edit-input {
+	width: 100%; /* Инпут внутри спана растянется на максимум */
+	box-sizing: border-box;
+}
 .task-title {
 	display: flex;
 	align-items: center;
+	text-align: left;
 	gap: 6px;
 	width: 100%;
 }
-
 .task-title-text {
 	width: 100%;
 }

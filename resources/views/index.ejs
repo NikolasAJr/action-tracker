@@ -52,14 +52,14 @@
                 <% } %>
 
                 <span class="task-title-wrapper">
-                  <span class="task-title-text"><%= task.id %> <%= task.title %></span>
-                  <button class="edit-icon-btn" onclick="event.stopPropagation(); editTitle(this.previousElementSibling, '<%= task.id %>')">✎</button>
+                  <span class="task-title-text"><%= task.title %></span>
+                  <button class="edit-icon-btn" onclick="event.stopPropagation(); editTask(this.previousElementSibling, '<%= task.id %>', 'title')">✎</button>
                 </span>
               </span>
 
               <span class="task-category-wrapper">
                 <span class="task-category-text"><%= task.category %></span>
-                <button class="edit-icon-btn" onclick="event.stopPropagation(); editCategory(this.previousElementSibling, '<%= task.id %>')">✎</button>
+                <button class="edit-icon-btn" onclick="event.stopPropagation(); editTask(this.previousElementSibling, '<%= task.id %>', 'category')">✎</button>
               </span>
 
               <span class="subtask-count">
@@ -75,6 +75,7 @@
                 <%= task.daysLeft %>
               </span>
               <span class="task-status <%= task.status?.toLowerCase() === 'просрочено' ? 'status-overdue' : 
+                task.status?.toLowerCase() === 'открыто' ? 'status-open' :
                 task.status?.toLowerCase() === 'в работе' ? 'status-progress' :
                 task.status?.toLowerCase() === 'готово' ? 'status-done' : 
                 task.status?.toLowerCase() === 'на паузе' ? 'status-paused' :
@@ -100,7 +101,7 @@
             <input type="text" name="assigned_to" placeholder="Ответственный" required>
             <input type="date" name="deadline_at" required>
             <input type="text" readonly>
-            <input type="text" name="status" value="В работе" required>
+            <input type="text" name="status" value="Открыто" required>
             <button type="submit" class="mini-add-btn">ОК</button>
           </form>
           <% } %>
