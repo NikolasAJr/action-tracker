@@ -20,7 +20,7 @@
 
 	/* Сетка */
 	/* Задача | Категория | Подзадачи | Ответственный | Срок | Дни | Статус | Действия */
-	--task-grid: minmax(200px, 3fr) 100px 60px 200px 150px 60px 110px 80px;
+	--task-grid: minmax(200px, 3fr) 150px 60px 200px 150px 40px 80px 80px;
 	--subtask-indent: 32px;
 
 
@@ -111,6 +111,7 @@ body {
 
 /* --- Table Styles --- */
 .task-table {
+	text-align: center;
 	background: var(--bg-surface);
 	border-radius: 16px;
 	box-shadow: 0 4px 24px rgba(0, 0, 0, 0.03);
@@ -200,6 +201,10 @@ body {
     min-width: 0;
 }
 
+.task-category-text {
+	text-align: center;
+}
+
 /* --- Inputs & Editing --- */
 .edit-icon-btn {
 	opacity: 0;
@@ -240,10 +245,12 @@ body {
 	align-items: center;
 	gap: 8px;
 }
-.task-category-text {
-	font-size: 12px;
-	color: var(--text-secondary);
-	background: #f4f4f5;
+
+.task-category-text,
+.task-deadline-text {
+	/* font-size: 13px; */
+	/* color: var(--text-secondary); */
+	/* background: #f4f4f5; */
 	border-radius: 4px;
 }
 .task-assignee-text {
@@ -517,4 +524,12 @@ body {
 }
 .task-clickable-area {
     display: contents;
+}
+
+.task-category-text:hover {
+    background: #e4e4e7; /* Чуть темнее при наведении, показывая кликабельность */
+}
+
+.task-deadline-text:hover {
+    background: #e4e4e7; /* Чуть темнее при наведении, показывая кликабельность */
 }

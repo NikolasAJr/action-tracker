@@ -6,6 +6,10 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Action Tracker | Dashboard</title>
   <link rel="stylesheet" href="/css/style.css">
+  <script>
+    // Передаем категории из EJS в глобальную переменную JS
+    window.CATEGORIES = <%- JSON.stringify(categories.map(c => c.name)) %>;
+  </script>
 </head>
 
 <body>
@@ -60,8 +64,10 @@
               </span>
 
               <span class="task-category-wrapper">
-                <span class="task-category-text"><%= task.category %></span>
-                <button class="edit-icon-btn" onclick="event.stopPropagation(); editTask(this.previousElementSibling, '<%= task.id %>', 'category')">✎</button>
+                <span class="task-category-text" style="cursor: pointer;" onclick="event.stopPropagation(); editCategory(this, '<%= task.id %>')">
+                  <%= task.category || '—' %>
+                </span>
+                <button class="edit-icon-btn" onclick="event.stopPropagation(); editCategory(this.previousElementSibling, '<%= task.id %>')">✎</button>
               </span>
 
               <span class="subtask-count">
@@ -78,8 +84,8 @@
               </span>
 
               <span class="task-deadline-wrapper">
-                <span class="task-deadline-text"><%= task.deadline_at %></span>
-                <button class="edit-icon-btn" onclick="event.stopPropagation(); editTask(this.previousElementSibling, '<%= task.id %>', 'deadline_at')">✎</button>
+                <span class="task-deadline-text" onclick="event.stopPropagation(); editTask(this, '<%= task.id %>', 'deadline_at')"><%= task.deadline_at %></span>
+                <!-- <button class="edit-icon-btn" onclick="event.stopPropagation(); editTask(this.previousElementSibling, '<%= task.id %>', 'deadline_at')">✎</button> -->
               </span>
 
               <span class="<%= task.daysLeft <= 1 ? 'days-critical' : task.daysLeft <= 3 ? 'days-warning' : '' %>">
@@ -120,15 +126,16 @@
           <form action="/tasks" method="POST" id="form-sub-<%= task.id %>" class="task-row is-subtask inline-add-form hidden">
             <input type="hidden" name="parent_id" value="<%= task.id %>">
             <input type="text" name="title" placeholder="Название подзадачи..." required>
-            <input type="text" name="category" placeholder="Категория">
+
+            <input type="hidden" name="category" value="">
+            <span class="task-category-text" style="cursor: pointer; min-width: 80px; text-align: center; border-bottom: 1px dashed #ccc;" onclick="event.stopPropagation(); editCategory(this, null, true)">Выбрать...</span>
+
             <input type="text" readonly>
             <input type="text" name="assigned_to" placeholder="Ответственный" required>
             <input type="date" name="deadline_at" required>
             <input type="text" readonly>
-
             <input type="hidden" name="status" value="Открыто">
             <span class="task-status status-open" onclick="event.stopPropagation(); editStatus(this, null, true)">Открыто</span>
-
             <button type="submit" class="mini-add-btn">ОК</button>
           </form>
           <% } %>
@@ -136,15 +143,16 @@
 
           <form action="/tasks" method="POST" class="task-row inline-add-form main-add-row">
             <input type="text" name="title" placeholder="Начните ввод новой задачи..." required>
-            <input type="text" name="category" placeholder="Категория">
+
+            <input type="hidden" name="category" value="">
+            <span class="task-category-text" style="cursor: pointer; min-width: 80px; text-align: center; border-bottom: 1px dashed #ccc;" onclick="event.stopPropagation(); editCategory(this, null, true)">Выбрать...</span>
+
             <input type="text" readonly class="invisible">
             <input type="text" name="assigned_to" placeholder="Ответственный" required>
             <input type="date" name="deadline_at" required>
             <input type="text" readonly class="invisible">
-
             <input type="hidden" name="status" value="Открыто">
             <span class="task-status status-open" onclick="event.stopPropagation(); editStatus(this, null, true)">Открыто</span>
-
             <button type="submit" class="add-btn-large">Добавить задачу</button>
           </form>
         </div>
@@ -158,9 +166,7 @@
         <h2 id="panel-title">Детали задачи</h2>
         <hr>
         <p><strong>Исполнитель:</strong> <span id="panel-user"></span></p>
-        <div class="dummy-text">
-          Здесь будет описание задачи, комментарии и история изменений.
-        </div>
+        <div class="dummy-text">Здесь будет описание задачи.</div>
       </div>
     </aside>
   </div>
