@@ -5,8 +5,10 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Action Tracker | Dashboard</title>
-  <link rel="stylesheet" href="/css/style.css">
+  <link rel="stylesheet" href="./css/style.css">
+  <link rel="stylesheet" href="./css/aside-panel.css">
   <script>
+    // Глобальная переменная нужна для модуля dropdown.js
     window.CATEGORIES = <%- JSON.stringify(categories.map(c => c.name)) %>;
   </script>
 </head>
@@ -26,13 +28,13 @@
       <section class="table-container">
         <div class="task-table" id="task-table-root">
           <div class="search-wrapper" style="margin-bottom: 20px;">
-            <input type="text" id="taskSearch" placeholder="🔍 Поиск задачи или исполнителя..." style="width: 100%; padding: 10px; border: 1px solid var(--border-color); border-radius: 8px;">
+            <input type="text" id="taskSearch" class="task-search-input" placeholder="🔍 Поиск задачи или исполнителя...">
           </div>
 
           <div class="table-header">
             <span>Задача</span>
             <span>Категория</span>
-            <span title="Подзадачи" style="display: flex; justify-content: center; align-items: center;">
+            <span>Приоритет</span> <span title="Подзадачи">
               <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="opacity: 0.6;">
                 <path d="M3 3h6v6H3zM15 15h6v6h-6zM15 3h6v6h-6zM9 6h6M12 6v12M12 18h3" />
               </svg>
@@ -48,6 +50,7 @@
           <% const subtaskCount = tasks.filter(t => t.parent_id === task.id).length; %>
           <% const hasChildren = subtaskCount > 0; %>
 
+          <!-- ОТРИСОВКА ГЛАВНОЙ ЗАДАЧИ И ЕЁ ПОДЗАДАЧ -->
           <div class="task-row <%= task.isSubtask ? 'is-subtask' : '' %>" <% if (task.isSubtask) { %> data-parent-id="<%= task.parent_id %>" style="display: none;" <% } %>>
             <div class="task-clickable-area">
               <span class="task-title">
@@ -55,42 +58,34 @@
                 <span class="toggle-icon" data-action="toggle-subtasks" data-id="<%= task.id %>" style="<%= hasChildren ? '' : 'visibility: hidden;' %>">▶</span>
                 <% } %>
                 <span class="task-title-wrapper">
-                  <span class="task-title-text" style="cursor: pointer;" data-action="open-details" data-id="<%= task.id %>">
-                    <%= task.title %>
-                  </span>
+                  <span class="task-title-text" data-action="open-details" data-id="<%= task.id %>"><%= task.title %></span>
                   <button class="edit-icon-btn" data-action="edit-field-btn" data-field="title" data-id="<%= task.id %>">✎</button>
                 </span>
               </span>
 
               <span class="task-category-wrapper">
-                <span class="task-category-text" style="cursor: pointer;" data-action="edit-category" data-id="<%= task.id %>">
-                  <%= task.category || '—' %>
+                <span class="task-category-text" data-action="edit-category" data-id="<%= task.id %>"><%= task.category || '—' %></span>
+              </span>
+
+              <span class="task-priority-wrapper">
+                <span class="priority-badge <%= getPriorityClass(task.priority) %>" data-action="edit-priority" data-id="<%= task.id %>">
+                  <%= getPriorityLabel(task.priority) %>
                 </span>
               </span>
 
               <span class="subtask-count">
                 <% if (!task.isSubtask && subtaskCount > 0) { %>
-                <span class="subtask-badge <%= subtaskCount > 5 ? 'has-many' : '' %>">
-                  <%= subtaskCount %>
-                </span>
+                <span class="subtask-badge <%= subtaskCount > 5 ? 'has-many' : '' %>"><%= subtaskCount %></span>
                 <% } %>
               </span>
-
               <span class="task-assignee-wrapper">
                 <span class="task-assignee-text" data-action="edit-field-text" data-field="assigned_to" data-id="<%= task.id %>"><%= task.assigned_to %></span>
               </span>
-
               <span class="task-deadline-wrapper">
                 <span class="task-deadline-text" data-action="edit-field-text" data-field="deadline_at" data-id="<%= task.id %>"><%= task.deadline_at %></span>
               </span>
-
-              <span class="<%= task.daysLeft <= 1 ? 'days-critical' : task.daysLeft <= 3 ? 'days-warning' : '' %>">
-                <%= task.daysLeft %>
-              </span>
-
-              <span class="task-status <%= getStatusClass(task.status) %>" data-action="edit-status" data-id="<%= task.id %>" data-original-value="<%= task.status %>">
-                <%= task.status %>
-              </span>
+              <span class="<%= task.daysLeft <= 1 ? 'days-critical' : task.daysLeft <= 3 ? 'days-warning' : '' %>" data-days-id="<%= task.id %>"><%= task.daysLeft %></span>
+              <span class="task-status <%= getStatusClass(task.status) %>" data-action="edit-status" data-id="<%= task.id %>" data-original-value="<%= task.status %>"><%= task.status %></span>
             </div>
 
             <div class="task-actions">
@@ -102,7 +97,6 @@
                 </svg>
               </button>
               <% } %>
-
               <form action="/tasks/delete/<%= task.id %>" method="POST" class="delete-form" data-confirm="true">
                 <button type="submit" class="delete-btn" title="Удалить задачу">
                   <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="pointer-events: none;">
@@ -114,41 +108,41 @@
             </div>
           </div>
 
+          <!-- ФОРМА ДЛЯ ДОБАВЛЕНИЯ ПОДЗАДАЧИ -->
           <% if (!task.isSubtask) { %>
           <form action="/tasks" method="POST" id="form-sub-<%= task.id %>" class="task-row is-subtask inline-add-form hidden">
             <input type="hidden" name="parent_id" value="<%= task.id %>">
             <input type="text" name="title" placeholder="Название подзадачи..." required>
             <input type="hidden" name="category" value="">
+            <span class="task-category-text" data-action="edit-category" data-is-new="true">Выбрать...</span>
 
-            <span class="task-category-text" style="cursor: pointer; min-width: 80px; text-align: center; border-bottom: 1px dashed #ccc;" data-action="edit-category" data-is-new="true">Выбрать...</span>
+            <input type="hidden" name="priority" value="1">
+            <span class="priority-badge priority-low" style="cursor: pointer; margin: 0 auto;" data-action="edit-priority" data-is-new="true">Низкий</span>
 
-            <input type="text" readonly>
-            <input type="text" name="assigned_to" placeholder="Ответственный" required>
+            <input type="text" readonly><input type="text" name="assigned_to" placeholder="Ответственный" required>
             <input type="date" name="deadline_at" required>
-            <input type="text" readonly>
-            <input type="hidden" name="status" value="Открыто">
-
+            <input type="text" readonly><input type="hidden" name="status" value="Открыто">
             <span class="task-status status-open" data-action="edit-status" data-is-new="true">Открыто</span>
-
             <button type="submit" class="mini-add-btn">ОК</button>
           </form>
           <% } %>
           <% }); %>
 
+          <!-- ФОРМА ДЛЯ ДОБАВЛЕНИЯ ГЛАВНОЙ ЗАДАЧИ -->
           <form action="/tasks" method="POST" class="task-row inline-add-form main-add-row">
             <input type="text" name="title" placeholder="Начните ввод новой задачи..." required>
             <input type="hidden" name="category" value="">
+            <span class="task-category-text" data-action="edit-category" data-is-new="true">Выбрать...</span>
 
-            <span class="task-category-text" style="cursor: pointer; min-width: 80px; text-align: center; border-bottom: 1px dashed #ccc;" data-action="edit-category" data-is-new="true">Выбрать...</span>
+            <input type="hidden" name="priority" value="1">
+            <span class="priority-badge priority-low" style="cursor: pointer; margin: 0 auto;" data-action="edit-priority" data-is-new="true">Низкий</span>
 
             <input type="text" readonly class="invisible">
             <input type="text" name="assigned_to" placeholder="Ответственный" required>
             <input type="date" name="deadline_at" required>
             <input type="text" readonly class="invisible">
             <input type="hidden" name="status" value="Открыто">
-
             <span class="task-status status-open" data-action="edit-status" data-is-new="true">Открыто</span>
-
             <button type="submit" class="add-btn-large">Добавить задачу</button>
           </form>
         </div>
@@ -158,56 +152,41 @@
     <div id="overlay" class="overlay" data-action="close-details"></div>
     <aside id="details-panel" class="details-panel">
       <button class="close-btn" data-action="close-details">✕</button>
-
       <div class="panel-content" id="panel-loading">
-        <div class="spinner"></div> Загрузка...
+        <div class="spinner"></div>
       </div>
-
       <div class="panel-content hidden" id="panel-data">
         <div class="panel-header">
           <span class="panel-id">#<span id="p-id"></span></span>
           <h2 id="p-title" contenteditable="true" class="editable-title" data-action="edit-panel-title"></h2>
         </div>
-
         <div class="panel-properties">
-          <div class="prop-row">
-            <span class="prop-label">Исполнитель</span>
-            <span class="prop-value" id="p-assignee" data-action="edit-panel-field" data-field="assigned_to"></span>
-          </div>
-          <div class="prop-row">
-            <span class="prop-label">Статус</span>
-            <span class="prop-value" id="p-status" data-action="edit-panel-status"></span>
-          </div>
-          <div class="prop-row">
-            <span class="prop-label">Срок</span>
-            <span class="prop-value" id="p-deadline" data-action="edit-panel-field" data-field="deadline_at"></span>
-          </div>
-          <div class="prop-row">
-            <span class="prop-label">Приоритет</span>
-            <span class="prop-value" id="p-priority" data-action="edit-panel-priority"></span>
-          </div>
+          <div class="prop-row"><span class="prop-label">Исполнитель</span><span class="prop-value" id="p-assignee" data-action="edit-panel-field" data-field="assigned_to"></span></div>
+          <div class="prop-row"><span class="prop-label">Статус</span><span class="prop-value" id="p-status" data-action="edit-panel-status"></span></div>
+          <div class="prop-row"><span class="prop-label">Срок</span><span class="prop-value" id="p-deadline" data-action="edit-panel-field" data-field="deadline_at"></span></div>
+          <div class="prop-row"><span class="prop-label">Приоритет</span><span class="prop-value" id="p-priority" data-action="edit-panel-priority"></span></div>
         </div>
 
         <hr class="panel-divider">
-
-        <div class="panel-section">
-          <label class="section-label">Заметки / Описание</label>
-          <textarea id="p-comments" class="panel-textarea" placeholder="Добавьте описание задачи..."></textarea>
-          <div id="save-indicator" class="save-status">Сохранено</div>
+        <label class="section-label">Комментарии / Чат</label>
+        <div class="chat-section">
+          <div id="chat-messages" class="chat-messages">
+          </div>
+          <div class="chat-input-wrapper">
+            <input type="text" id="chat-input" class="chat-input" placeholder="Написать комментарий..." autocomplete="off">
+            <button id="chat-send-btn" class="send-btn">➤</button>
+          </div>
         </div>
-
         <hr class="panel-divider">
 
-        <div class="panel-meta">
-          <p>Создано: <span id="p-created"></span></p>
-          <p>Обновлено: <span id="p-updated"></span></p>
-        </div>
       </div>
     </aside>
   </div>
-  <script src="/main.js"></script>
 
-  <% function getStatusClass(status) {
+  <script type="module" src="/js/main.js"></script>
+
+  <% 
+     function getStatusClass(status) {
        switch(status?.toLowerCase()) {
          case 'просрочено': return 'status-overdue';
          case 'открыто': return 'status-open';
@@ -217,7 +196,19 @@
          case 'отменено': return 'status-cancelled';
          default: return 'status-open';
        }
-     } 
+     }
+
+     function getPriorityClass(p) {
+        if(p == 3) return 'priority-high';
+        if(p == 2) return 'priority-medium';
+        return 'priority-low';
+     }
+
+     function getPriorityLabel(p) {
+        if(p == 3) return 'Высокий';
+        if(p == 2) return 'Средний';
+        return 'Низкий';
+     }
   %>
 </body>
 

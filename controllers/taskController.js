@@ -55,13 +55,13 @@ function decorateTask(task, today) {
 // так как они работают с полями динамически или через стандартный INSERT/UPDATE
 export const createTask = async (ctx) => {
 	try {
-		const { title, assigned_to, deadline_at, status, parent_id, category } = ctx.request.body;
+		const { title, assigned_to, deadline_at, status, parent_id, category, priority } = ctx.request.body;
 		if (!db) throw new Error('БД не инициализирована');
 
 		db.prepare(
-			`INSERT INTO task (title, assigned_to, deadline_at, status, parent_id, category)
-             VALUES (?, ?, ?, ?, ?, ?)`,
-		).run(title, assigned_to, deadline_at, status, parent_id || null, category || null);
+			`INSERT INTO task (title, assigned_to, deadline_at, status, parent_id, category, priority)
+             VALUES (?, ?, ?, ?, ?, ?, ?)`,
+		).run(title, assigned_to, deadline_at, status, parent_id || null, category || null, priority || 1);
 
 		ctx.redirect('/');
 	} catch (err) {
@@ -123,5 +123,44 @@ export const getTaskDetails = async (ctx) => {
 		console.error('Ошибка получения деталей:', err);
 		ctx.status = 500;
 		ctx.body = { error: 'Ошибка сервера' };
+	}
+};
+
+export const getComments = async (ctx) => {
+	const { id } = ctx.params;
+	try {
+		if (!db) throw new Error('БД не инициализирована');
+		const comments = db.prepare('SELECT * FROM task_comment WHERE task_id = ? ORDER BY created_at ASC').all(id); //DESC
+		ctx.body = comments;
+	} catch (err) {
+		console.error('Ошибка получения комментариев:', err);
+		ctx.status = 500;
+		ctx.body = { error: 'Ошибка получения комментариев' };
+	}
+};
+
+export const addComment = async (ctx) => {
+	const { id } = ctx.params;
+	// const { author, text } = ctx.request.body;
+	const { text } = ctx.request.body;
+
+	try {
+		if (!db) throw new Error('БД не инициализирована');
+
+		if (!text || !text.trim()) {
+			ctx.status = 400;
+			return;
+		}
+
+		const author = 'Admin'; // Заглушка для автора комментария
+
+		const info = db.prepare('INSERT INTO task_comment (task_id, author, text) VALUES (?, ?, ?)').run(id, author, text);
+
+		const newComment = db.prepare('SELECT * FROM task_comment WHERE id = ?').get(info.lastInsertRowid);
+		ctx.body = newComment;
+	} catch (err) {
+		console.error('Ошибка добавления комментария:', err);
+		ctx.status = 500;
+		ctx.body = { error: 'Ошибка отправки' };
 	}
 };

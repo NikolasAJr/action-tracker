@@ -19,8 +19,8 @@
 	--border-focus: #3b82f6;
 
 	/* Сетка */
-	/* Задача | Категория | Подзадачи | Ответственный | Срок | Дни | Статус | Действия */
-	--task-grid: minmax(200px, 3fr) 150px 60px 200px 110px 60px 100px 80px;
+	/* Задача | Категория | Приоритет | Подзадачи | Ответственный | Срок | Дни | Статус | Действия */
+	--task-grid: minmax(200px, 3fr) 150px 90px 60px 200px 110px 60px 100px 80px;
 	--subtask-indent: 32px;
 }
 
@@ -198,6 +198,11 @@ body {
 	min-width: 0;
 	justify-content: center; /* Центрировать содержимое (текст + кнопка) */
 }
+.task-priority-wrapper {
+	display: flex;
+	align-items: center;
+	justify-content: center;
+}
 
 /* Стили текста */
 .task-title-text,
@@ -210,6 +215,9 @@ body {
 	min-width: 0;
 	/* Убираем flex: 1, чтобы элементы не разъезжались по краям, 
        а держались вместе по центру (текст рядом с карандашом) */
+}
+.task-title-text {
+	cursor: pointer;
 }
 
 /* --- Inputs & Editing --- */
@@ -261,6 +269,12 @@ body {
 	/* background: #f4f4f5; */
 	cursor: pointer;
 	border-radius: 4px;
+}
+.task-category-text {
+	cursor: pointer;
+	min-width: 80px;
+	text-align: center;
+	border-bottom: 1px dashed #ccc;
 }
 .task-assignee-text {
 	display: flex;
@@ -558,4 +572,34 @@ body {
 
 .toggle-icon:hover {
 	color: var(--accent-color);
+}
+
+.priority-select {
+	background: transparent;
+	border: none;
+	border-bottom: 1px solid transparent;
+	font-size: 12px;
+	padding: 6px 0;
+	width: 100%;
+	color: var(--text-secondary);
+	cursor: pointer;
+	transition:
+		border 0.2s,
+		color 0.2s;
+}
+.priority-select:focus {
+	border-bottom-color: var(--accent-color);
+	color: var(--text-primary);
+	outline: none;
+}
+/* Чтобы опции внутри были читаемыми */
+.priority-select option {
+	color: var(--text-primary);
+}
+
+.task-search-input {
+	width: 100%;
+	padding: 10px;
+	border: 1px solid var(--border-color);
+	border-radius: 8px;
 }
