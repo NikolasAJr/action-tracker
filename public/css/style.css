@@ -20,9 +20,9 @@
 
 	/* Сетка */
 	/* Задача | Категория | Подзадачи | Ответственный | Срок | Дни | Статус | Действия */
-	--task-grid: minmax(200px, 3fr) 150px 60px 200px 150px 40px 80px 80px;
+	--task-grid: minmax(200px, 3fr) 150px 60px 200px 110px 60px 100px 80px;
 	--subtask-indent: 32px;
-
+}
 
 * {
 	box-sizing: border-box;
@@ -177,32 +177,39 @@ body {
 	pointer-events: none;
 }
 
-/* --- Исправление для ВСЕХ оберток (Wrappers) --- */
-/* Заставляет текст и карандаш стоять в одну линию */
-.task-title-wrapper,
+/* 1. Обертка для НАЗВАНИЯ задачи (оставляем слева) */
+.task-title-wrapper {
+	display: flex;
+	align-items: center;
+	gap: 8px;
+	width: 100%;
+	min-width: 0;
+	justify-content: flex-start; /* Прижать влево */
+}
+
+/* 2. Обертки для ОСТАЛЬНЫХ колонок (центруем) */
 .task-category-wrapper,
 .task-assignee-wrapper,
 .task-deadline-wrapper {
-    display: flex;
-    align-items: center;
-    gap: 8px;
-    width: 100%;
-    min-width: 0; /* Для работы ellipsis */
+	display: flex;
+	align-items: center;
+	gap: 8px;
+	width: 100%;
+	min-width: 0;
+	justify-content: center; /* Центрировать содержимое (текст + кнопка) */
 }
 
-/* Текст (и будущий инпут) теперь занимает всё свободное место */
+/* Стили текста */
 .task-title-text,
 .task-category-text,
 .task-assignee-text,
 .task-deadline-text {
-    white-space: nowrap;
-    overflow: hidden;
-    text-overflow: ellipsis;
-    min-width: 0;
-}
-
-.task-category-text {
-	text-align: center;
+	white-space: nowrap;
+	overflow: hidden;
+	text-overflow: ellipsis;
+	min-width: 0;
+	/* Убираем flex: 1, чтобы элементы не разъезжались по краям, 
+       а держались вместе по центру (текст рядом с карандашом) */
 }
 
 /* --- Inputs & Editing --- */
@@ -229,7 +236,7 @@ body {
 
 .edit-input {
 	width: 100%;
-    display: block; /* Убирает лишние отступы снизу */
+	display: block; /* Убирает лишние отступы снизу */
 	border: none;
 	border-bottom: 1px solid var(--accent-color);
 	background: transparent;
@@ -247,10 +254,12 @@ body {
 }
 
 .task-category-text,
-.task-deadline-text {
+.task-deadline-text,
+.task-assignee-text {
 	/* font-size: 13px; */
 	/* color: var(--text-secondary); */
 	/* background: #f4f4f5; */
+	cursor: pointer;
 	border-radius: 4px;
 }
 .task-assignee-text {
@@ -417,18 +426,23 @@ body {
 	padding: 6px;
 	z-index: 9999;
 	min-width: 160px;
-	animation: menuScale 0.15s cubic-bezier(0.16, 1, 0.3, 1);
+
+	/* ВАЖНО: Добавили это свойство, чтобы меню оставалось по центру после анимации */
+	transform: translateX(-50%);
+
 	transform-origin: top center;
+	animation: menuScale 0.15s cubic-bezier(0.16, 1, 0.3, 1);
 }
 
 @keyframes menuScale {
 	from {
 		opacity: 0;
-		transform: translateY(-8px) scale(0.95) translateX(-50%);
+		/* Сохраняем translateX(-50%) на всех этапах */
+		transform: translateX(-50%) translateY(-8px) scale(0.95);
 	}
 	to {
 		opacity: 1;
-		transform: translateY(0) scale(1) translateX(-50%);
+		transform: translateX(-50%) translateY(0) scale(1);
 	}
 }
 
@@ -523,13 +537,25 @@ body {
 	visibility: hidden;
 }
 .task-clickable-area {
-    display: contents;
+	display: contents;
 }
 
 .task-category-text:hover {
-    background: #e4e4e7; /* Чуть темнее при наведении, показывая кликабельность */
+	background: #e4e4e7; /* Чуть темнее при наведении, показывая кликабельность */
 }
 
 .task-deadline-text:hover {
-    background: #e4e4e7; /* Чуть темнее при наведении, показывая кликабельность */
+	background: #e4e4e7; /* Чуть темнее при наведении, показывая кликабельность */
+}
+
+.toggle-icon {
+	cursor: pointer;
+	color: var(--text-tertiary);
+	transition:
+		opacity 0.2s,
+		color 0.2s;
+}
+
+.toggle-icon:hover {
+	color: var(--accent-color);
 }

@@ -6,6 +6,7 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Action Tracker | Dashboard</title>
   <link rel="stylesheet" href="/css/style.css">
+  <link rel="stylesheet" href="/css/aside-panel.css">
   <script>
     // Передаем категории из EJS в глобальную переменную JS
     window.CATEGORIES = <%- JSON.stringify(categories.map(c => c.name)) %>;
@@ -56,7 +57,7 @@
                 <span class="toggle-icon" onclick="event.stopPropagation(); toggleSubtasks('<%= task.id %>', this)" style="<%= hasChildren ? '' : 'visibility: hidden;' %>">▶</span>
                 <% } %>
                 <span class="task-title-wrapper">
-                  <span class="task-title-text" style="cursor: pointer;" onclick="openDetails('<%= task.title %>', '<%= task.assigned_to %>')">
+                  <span class="task-title-text" style="cursor: pointer;" onclick="openDetails('<%= task.id %>')">
                     <%= task.title %>
                   </span>
                   <button class="edit-icon-btn" onclick="event.stopPropagation(); editTask(this.previousElementSibling, '<%= task.id %>', 'title')">✎</button>
@@ -67,7 +68,7 @@
                 <span class="task-category-text" style="cursor: pointer;" onclick="event.stopPropagation(); editCategory(this, '<%= task.id %>')">
                   <%= task.category || '—' %>
                 </span>
-                <button class="edit-icon-btn" onclick="event.stopPropagation(); editCategory(this.previousElementSibling, '<%= task.id %>')">✎</button>
+                <!-- <button class="edit-icon-btn" onclick="event.stopPropagation(); editCategory(this.previousElementSibling, '<%= task.id %>')">✎</button> -->
               </span>
 
               <span class="subtask-count">
@@ -79,8 +80,8 @@
               </span>
 
               <span class="task-assignee-wrapper">
-                <span class="task-assignee-text"><%= task.assigned_to %></span>
-                <button class="edit-icon-btn" onclick="event.stopPropagation(); editTask(this.previousElementSibling, '<%= task.id %>', 'assigned_to')">✎</button>
+                <span class="task-assignee-text" onclick="event.stopPropagation(); editTask(this, '<%= task.id %>', 'assigned_to')"><%= task.assigned_to %></span>
+                <!-- <button class="edit-icon-btn" onclick="event.stopPropagation(); editTask(this.previousElementSibling, '<%= task.id %>', 'assigned_to')">✎</button> -->
               </span>
 
               <span class="task-deadline-wrapper">
@@ -162,11 +163,50 @@
     <div id="overlay" class="overlay" onclick="closeDetails()"></div>
     <aside id="details-panel" class="details-panel">
       <button class="close-btn" onclick="closeDetails()">✕</button>
-      <div class="panel-content">
-        <h2 id="panel-title">Детали задачи</h2>
-        <hr>
-        <p><strong>Исполнитель:</strong> <span id="panel-user"></span></p>
-        <div class="dummy-text">Здесь будет описание задачи.</div>
+
+      <div class="panel-content" id="panel-loading">
+        <div class="spinner"></div> Загрузка...
+      </div>
+
+      <div class="panel-content hidden" id="panel-data">
+        <div class="panel-header">
+          <span class="panel-id">#<span id="p-id"></span></span>
+          <h2 id="p-title" contenteditable="true" class="editable-title"></h2>
+        </div>
+
+        <div class="panel-properties">
+          <div class="prop-row">
+            <span class="prop-label">Исполнитель</span>
+            <span class="prop-value" id="p-assignee"></span>
+          </div>
+          <div class="prop-row">
+            <span class="prop-label">Статус</span>
+            <span class="prop-value" id="p-status"></span>
+          </div>
+          <div class="prop-row">
+            <span class="prop-label">Срок</span>
+            <span class="prop-value" id="p-deadline"></span>
+          </div>
+          <div class="prop-row">
+            <span class="prop-label">Приоритет</span>
+            <span class="prop-value" id="p-priority">—</span>
+          </div>
+        </div>
+
+        <hr class="panel-divider">
+
+        <div class="panel-section">
+          <label class="section-label">Заметки / Описание</label>
+          <textarea id="p-comments" class="panel-textarea" placeholder="Добавьте описание задачи..."></textarea>
+          <div id="save-indicator" class="save-status">Сохранено</div>
+        </div>
+
+        <hr class="panel-divider">
+
+        <div class="panel-meta">
+          <p>Создано: <span id="p-created"></span></p>
+          <p>Обновлено: <span id="p-updated"></span></p>
+        </div>
       </div>
     </aside>
   </div>

@@ -5,16 +5,98 @@
 let activeMenu = null;
 let activeTrigger = null;
 
-function openDetails(title, user) {
-	document.querySelector('#panel-title').innerText = title;
-	document.querySelector('#panel-user').innerText = user;
-	document.querySelector('#details-panel').classList.add('open');
-	document.querySelector('#overlay').classList.add('visible');
+let currentPanelTaskId = null;
+
+async function openDetails(taskId) {
+	const panel = document.querySelector('#details-panel');
+	const overlay = document.querySelector('#overlay');
+	const loading = document.querySelector('#panel-loading');
+	const content = document.querySelector('#panel-data');
+
+	// 1. Открываем панель и показываем загрузку
+	panel.classList.add('open');
+	overlay.classList.add('visible');
+	loading.classList.remove('hidden');
+	content.classList.add('hidden');
+	currentPanelTaskId = taskId;
+
+	try {
+		// 2. Запрашиваем данные
+		const response = await fetch(`/tasks/${taskId}`);
+		if (!response.ok) throw new Error('Ошибка загрузки');
+		const task = await response.json();
+
+		// 3. Заполняем поля
+		document.getElementById('p-id').innerText = task.id;
+		document.getElementById('p-title').innerText = task.title;
+		document.getElementById('p-assignee').innerText = task.assigned_to;
+		document.getElementById('p-status').innerText = task.status;
+		document.getElementById('p-deadline').innerText = task.deadline_at;
+		document.getElementById('p-priority').innerText = task.priority || 'Обычный';
+
+		// Поле заметок (используем comments из БД как описание)
+		const commentBox = document.getElementById('p-comments');
+		commentBox.value = task.comments || '';
+
+		// Даты
+		document.getElementById('p-created').innerText = new Date(task.created_at).toLocaleString();
+		document.getElementById('p-updated').innerText = new Date(task.updated_at).toLocaleString();
+
+		// 4. Показываем контент
+		loading.classList.add('hidden');
+		content.classList.remove('hidden');
+
+		// 5. Вешаем обработчик на автосохранение заметок
+		setupAutoSave(commentBox, taskId);
+	} catch (err) {
+		console.error(err);
+		loading.innerHTML = 'Ошибка загрузки данных';
+	}
 }
 
 function closeDetails() {
 	document.querySelector('#details-panel').classList.remove('open');
 	document.querySelector('#overlay').classList.remove('visible');
+	currentPanelTaskId = null;
+}
+
+// Автосохранение заметок (Debounce + Blur)
+function setupAutoSave(textarea, taskId) {
+	let timeout = null;
+	const indicator = document.getElementById('save-indicator');
+
+	const save = async () => {
+		indicator.innerText = 'Сохранение...';
+		indicator.classList.add('visible');
+
+		try {
+			await fetch(`/tasks/update/${taskId}`, {
+				method: 'POST',
+				headers: { 'Content-Type': 'application/json' },
+				body: JSON.stringify({ comments: textarea.value }),
+			});
+			indicator.innerText = 'Сохранено';
+			setTimeout(() => indicator.classList.remove('visible'), 2000);
+
+			// Обновляем дату "Обновлено" в панели
+			document.getElementById('p-updated').innerText = new Date().toLocaleString();
+		} catch (e) {
+			indicator.innerText = 'Ошибка!';
+		}
+	};
+
+	// Сохраняем через 1 сек после остановки ввода
+	textarea.oninput = () => {
+		indicator.classList.remove('visible');
+		clearTimeout(timeout);
+		timeout = setTimeout(save, 1000);
+	};
+
+	// Или сразу при потере фокуса
+	textarea.onblur = () => {
+		clearTimeout(timeout);
+		save();
+	};
 }
 
 function toggleSubtaskForm(taskId) {

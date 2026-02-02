@@ -104,3 +104,24 @@ export const editTask = async (ctx) => {
 		ctx.body = { error: 'Ошибка БД' };
 	}
 };
+
+export const getTaskDetails = async (ctx) => {
+	const { id } = ctx.params;
+	try {
+		if (!db) throw new Error('БД не инициализирована');
+
+		const task = db.prepare('SELECT * FROM task WHERE id = ?').get(id);
+
+		if (!task) {
+			ctx.status = 404;
+			ctx.body = { error: 'Задача не найдена' };
+			return;
+		}
+
+		ctx.body = task;
+	} catch (err) {
+		console.error('Ошибка получения деталей:', err);
+		ctx.status = 500;
+		ctx.body = { error: 'Ошибка сервера' };
+	}
+};
