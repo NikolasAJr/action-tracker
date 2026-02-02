@@ -6,9 +6,7 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Action Tracker | Dashboard</title>
   <link rel="stylesheet" href="/css/style.css">
-  <link rel="stylesheet" href="/css/aside-panel.css">
   <script>
-    // Передаем категории из EJS в глобальную переменную JS
     window.CATEGORIES = <%- JSON.stringify(categories.map(c => c.name)) %>;
   </script>
 </head>
@@ -26,9 +24,9 @@
 
     <main class="main-content">
       <section class="table-container">
-        <div class="task-table">
+        <div class="task-table" id="task-table-root">
           <div class="search-wrapper" style="margin-bottom: 20px;">
-            <input type="text" id="taskSearch" placeholder="🔍 Поиск задачи или исполнителя..." onkeyup="filterTasks()" style="width: 100%; padding: 10px; border: 1px solid var(--border-color); border-radius: 8px;">
+            <input type="text" id="taskSearch" placeholder="🔍 Поиск задачи или исполнителя..." style="width: 100%; padding: 10px; border: 1px solid var(--border-color); border-radius: 8px;">
           </div>
 
           <div class="table-header">
@@ -54,21 +52,20 @@
             <div class="task-clickable-area">
               <span class="task-title">
                 <% if (!task.isSubtask) { %>
-                <span class="toggle-icon" onclick="event.stopPropagation(); toggleSubtasks('<%= task.id %>', this)" style="<%= hasChildren ? '' : 'visibility: hidden;' %>">▶</span>
+                <span class="toggle-icon" data-action="toggle-subtasks" data-id="<%= task.id %>" style="<%= hasChildren ? '' : 'visibility: hidden;' %>">▶</span>
                 <% } %>
                 <span class="task-title-wrapper">
-                  <span class="task-title-text" style="cursor: pointer;" onclick="openDetails('<%= task.id %>')">
+                  <span class="task-title-text" style="cursor: pointer;" data-action="open-details" data-id="<%= task.id %>">
                     <%= task.title %>
                   </span>
-                  <button class="edit-icon-btn" onclick="event.stopPropagation(); editTask(this.previousElementSibling, '<%= task.id %>', 'title')">✎</button>
+                  <button class="edit-icon-btn" data-action="edit-field-btn" data-field="title" data-id="<%= task.id %>">✎</button>
                 </span>
               </span>
 
               <span class="task-category-wrapper">
-                <span class="task-category-text" style="cursor: pointer;" onclick="event.stopPropagation(); editCategory(this, '<%= task.id %>')">
+                <span class="task-category-text" style="cursor: pointer;" data-action="edit-category" data-id="<%= task.id %>">
                   <%= task.category || '—' %>
                 </span>
-                <!-- <button class="edit-icon-btn" onclick="event.stopPropagation(); editCategory(this.previousElementSibling, '<%= task.id %>')">✎</button> -->
               </span>
 
               <span class="subtask-count">
@@ -80,41 +77,35 @@
               </span>
 
               <span class="task-assignee-wrapper">
-                <span class="task-assignee-text" onclick="event.stopPropagation(); editTask(this, '<%= task.id %>', 'assigned_to')"><%= task.assigned_to %></span>
-                <!-- <button class="edit-icon-btn" onclick="event.stopPropagation(); editTask(this.previousElementSibling, '<%= task.id %>', 'assigned_to')">✎</button> -->
+                <span class="task-assignee-text" data-action="edit-field-text" data-field="assigned_to" data-id="<%= task.id %>"><%= task.assigned_to %></span>
               </span>
 
               <span class="task-deadline-wrapper">
-                <span class="task-deadline-text" onclick="event.stopPropagation(); editTask(this, '<%= task.id %>', 'deadline_at')"><%= task.deadline_at %></span>
-                <!-- <button class="edit-icon-btn" onclick="event.stopPropagation(); editTask(this.previousElementSibling, '<%= task.id %>', 'deadline_at')">✎</button> -->
+                <span class="task-deadline-text" data-action="edit-field-text" data-field="deadline_at" data-id="<%= task.id %>"><%= task.deadline_at %></span>
               </span>
 
               <span class="<%= task.daysLeft <= 1 ? 'days-critical' : task.daysLeft <= 3 ? 'days-warning' : '' %>">
                 <%= task.daysLeft %>
               </span>
 
-              <span class="task-status <%= task.status?.toLowerCase() === 'просрочено' ? 'status-overdue' : 
-                  task.status?.toLowerCase() === 'открыто' ? 'status-open' :
-                  task.status?.toLowerCase() === 'в работе' ? 'status-progress' :
-                  task.status?.toLowerCase() === 'готово' ? 'status-done' : 
-                  task.status?.toLowerCase() === 'на паузе' ? 'status-paused' :
-                  task.status?.toLowerCase() === 'отменено' ? 'status-cancelled' : 'status-open' %>" onclick="event.stopPropagation(); editStatus(this, '<%= task.id %>')" data-original-value="<%= task.status %>">
+              <span class="task-status <%= getStatusClass(task.status) %>" data-action="edit-status" data-id="<%= task.id %>" data-original-value="<%= task.status %>">
                 <%= task.status %>
               </span>
             </div>
 
             <div class="task-actions">
               <% if (!task.isSubtask) { %>
-              <button onclick="event.stopPropagation(); toggleSubtaskForm('<%= task.id %>')" title="Добавить подзадачу">
-                <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+              <button data-action="toggle-add-form" data-id="<%= task.id %>" title="Добавить подзадачу">
+                <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="pointer-events: none;">
                   <line x1="12" y1="5" x2="12" y2="19"></line>
                   <line x1="5" y1="12" x2="19" y2="12"></line>
                 </svg>
               </button>
               <% } %>
-              <form action="/tasks/delete/<%= task.id %>" method="POST" class="delete-form" onclick="event.stopPropagation();" onsubmit="return confirm('Удалить задачу?');">
+
+              <form action="/tasks/delete/<%= task.id %>" method="POST" class="delete-form" data-confirm="true">
                 <button type="submit" class="delete-btn" title="Удалить задачу">
-                  <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                  <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="pointer-events: none;">
                     <polyline points="3 6 5 6 21 6"></polyline>
                     <path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"></path>
                   </svg>
@@ -127,16 +118,18 @@
           <form action="/tasks" method="POST" id="form-sub-<%= task.id %>" class="task-row is-subtask inline-add-form hidden">
             <input type="hidden" name="parent_id" value="<%= task.id %>">
             <input type="text" name="title" placeholder="Название подзадачи..." required>
-
             <input type="hidden" name="category" value="">
-            <span class="task-category-text" style="cursor: pointer; min-width: 80px; text-align: center; border-bottom: 1px dashed #ccc;" onclick="event.stopPropagation(); editCategory(this, null, true)">Выбрать...</span>
+
+            <span class="task-category-text" style="cursor: pointer; min-width: 80px; text-align: center; border-bottom: 1px dashed #ccc;" data-action="edit-category" data-is-new="true">Выбрать...</span>
 
             <input type="text" readonly>
             <input type="text" name="assigned_to" placeholder="Ответственный" required>
             <input type="date" name="deadline_at" required>
             <input type="text" readonly>
             <input type="hidden" name="status" value="Открыто">
-            <span class="task-status status-open" onclick="event.stopPropagation(); editStatus(this, null, true)">Открыто</span>
+
+            <span class="task-status status-open" data-action="edit-status" data-is-new="true">Открыто</span>
+
             <button type="submit" class="mini-add-btn">ОК</button>
           </form>
           <% } %>
@@ -144,25 +137,27 @@
 
           <form action="/tasks" method="POST" class="task-row inline-add-form main-add-row">
             <input type="text" name="title" placeholder="Начните ввод новой задачи..." required>
-
             <input type="hidden" name="category" value="">
-            <span class="task-category-text" style="cursor: pointer; min-width: 80px; text-align: center; border-bottom: 1px dashed #ccc;" onclick="event.stopPropagation(); editCategory(this, null, true)">Выбрать...</span>
+
+            <span class="task-category-text" style="cursor: pointer; min-width: 80px; text-align: center; border-bottom: 1px dashed #ccc;" data-action="edit-category" data-is-new="true">Выбрать...</span>
 
             <input type="text" readonly class="invisible">
             <input type="text" name="assigned_to" placeholder="Ответственный" required>
             <input type="date" name="deadline_at" required>
             <input type="text" readonly class="invisible">
             <input type="hidden" name="status" value="Открыто">
-            <span class="task-status status-open" onclick="event.stopPropagation(); editStatus(this, null, true)">Открыто</span>
+
+            <span class="task-status status-open" data-action="edit-status" data-is-new="true">Открыто</span>
+
             <button type="submit" class="add-btn-large">Добавить задачу</button>
           </form>
         </div>
       </section>
     </main>
 
-    <div id="overlay" class="overlay" onclick="closeDetails()"></div>
+    <div id="overlay" class="overlay" data-action="close-details"></div>
     <aside id="details-panel" class="details-panel">
-      <button class="close-btn" onclick="closeDetails()">✕</button>
+      <button class="close-btn" data-action="close-details">✕</button>
 
       <div class="panel-content" id="panel-loading">
         <div class="spinner"></div> Загрузка...
@@ -171,25 +166,25 @@
       <div class="panel-content hidden" id="panel-data">
         <div class="panel-header">
           <span class="panel-id">#<span id="p-id"></span></span>
-          <h2 id="p-title" contenteditable="true" class="editable-title"></h2>
+          <h2 id="p-title" contenteditable="true" class="editable-title" data-action="edit-panel-title"></h2>
         </div>
 
         <div class="panel-properties">
           <div class="prop-row">
             <span class="prop-label">Исполнитель</span>
-            <span class="prop-value" id="p-assignee"></span>
+            <span class="prop-value" id="p-assignee" data-action="edit-panel-field" data-field="assigned_to"></span>
           </div>
           <div class="prop-row">
             <span class="prop-label">Статус</span>
-            <span class="prop-value" id="p-status"></span>
+            <span class="prop-value" id="p-status" data-action="edit-panel-status"></span>
           </div>
           <div class="prop-row">
             <span class="prop-label">Срок</span>
-            <span class="prop-value" id="p-deadline"></span>
+            <span class="prop-value" id="p-deadline" data-action="edit-panel-field" data-field="deadline_at"></span>
           </div>
           <div class="prop-row">
             <span class="prop-label">Приоритет</span>
-            <span class="prop-value" id="p-priority">—</span>
+            <span class="prop-value" id="p-priority" data-action="edit-panel-priority"></span>
           </div>
         </div>
 
@@ -211,6 +206,19 @@
     </aside>
   </div>
   <script src="/main.js"></script>
+
+  <% function getStatusClass(status) {
+       switch(status?.toLowerCase()) {
+         case 'просрочено': return 'status-overdue';
+         case 'открыто': return 'status-open';
+         case 'в работе': return 'status-progress';
+         case 'готово': return 'status-done';
+         case 'на паузе': return 'status-paused';
+         case 'отменено': return 'status-cancelled';
+         default: return 'status-open';
+       }
+     } 
+  %>
 </body>
 
 </html>
