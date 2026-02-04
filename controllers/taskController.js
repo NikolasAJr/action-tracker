@@ -55,13 +55,16 @@ function decorateTask(task, today) {
 // так как они работают с полями динамически или через стандартный INSERT/UPDATE
 export const createTask = async (ctx) => {
 	try {
-		const { title, assigned_to, deadline_at, status, parent_id, category, priority } = ctx.request.body;
 		if (!db) throw new Error('БД не инициализирована');
+
+		const { title, assigned_to, deadline_at, status, parent_id, category, priority } = ctx.request.body;
+		const currentUser = ctx.state.user; // Получаем из сессии
+		const finalAssignee = assigned_to || currentUser.username;
 
 		db.prepare(
 			`INSERT INTO task (title, assigned_to, deadline_at, status, parent_id, category, priority)
              VALUES (?, ?, ?, ?, ?, ?, ?)`,
-		).run(title, assigned_to, deadline_at, status, parent_id || null, category || null, priority || 1);
+		).run(title, finalAssignee, deadline_at, status, parent_id || null, category || null, priority || 1);
 
 		ctx.redirect('/');
 	} catch (err) {
@@ -152,7 +155,7 @@ export const addComment = async (ctx) => {
 			return;
 		}
 
-		const author = 'Admin'; // Заглушка для автора комментария
+		const author = ctx.state.user.username; // Вместо 'Admin'
 
 		const info = db.prepare('INSERT INTO task_comment (task_id, author, text) VALUES (?, ?, ?)').run(id, author, text);
 
