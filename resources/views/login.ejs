@@ -1,0 +1,72 @@
+<!DOCTYPE html>
+<html lang="ru">
+
+<head>
+  <meta charset="UTF-8">
+  <title>Вход в систему</title>
+  <link rel="stylesheet" href="/css/style.css">
+  <style>
+    body {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      height: 100vh;
+      background: #f5f5f7;
+    }
+
+    .login-card {
+      background: white;
+      padding: 40px;
+      border-radius: 20px;
+      box-shadow: 0 10px 40px rgba(0, 0, 0, 0.05);
+      width: 360px;
+      text-align: center;
+    }
+
+    .login-title {
+      font-size: 24px;
+      font-weight: 800;
+      margin-bottom: 20px;
+    }
+
+    .login-input {
+      width: 100%;
+      padding: 12px;
+      margin-bottom: 16px;
+      border: 1px solid #e5e7eb;
+      border-radius: 8px;
+      font-size: 16px;
+    }
+
+    .login-btn {
+      width: 100%;
+      background: #1a1a1a;
+      color: white;
+      padding: 12px;
+      border: none;
+      border-radius: 8px;
+      font-size: 16px;
+      cursor: pointer;
+    }
+
+    .hint {
+      font-size: 12px;
+      color: #a1a1aa;
+      margin-top: 16px;
+    }
+  </style>
+</head>
+
+<body>
+  <div class="login-card">
+    <div class="login-title">Action Tracker</div>
+    <form action="/login" method="POST">
+      <label style="display:block; text-align:left; font-size:12px; color:#666; margin-bottom:4px;">Имя пользователя (Windows)</label>
+      <input type="text" name="username" class="login-input" value="<%= defaultUser %>" required>
+      <button type="submit" class="login-btn">Войти</button>
+    </form>
+    <p class="hint">Для теста можно изменить имя на другое</p>
+  </div>
+</body>
+
+</html>
