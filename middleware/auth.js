@@ -10,7 +10,6 @@ export const requireAuth = async (ctx, next) => {
 
 	// Передаем пользователя в шаблоны (чтобы в EJS было доступно user.role)
 	ctx.state.user = ctx.session.user;
-
 	await next();
 };
 

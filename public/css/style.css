@@ -1,27 +1,185 @@
 :root {
-	/* --- Modern Palette (Notion/Linear style) --- */
-	--bg-app: #f5f5f7; /* Мягкий серый фон приложения */
-	--bg-surface: #ffffff; /* Чистый белый для карточек */
-	--bg-sidebar: #1e1e24; /* Темный, почти черный сайдбар */
-
-	/* Тексты */
-	--text-primary: #1a1a1a;
-	--text-secondary: #6e6e73;
-	--text-tertiary: #a1a1aa;
-
-	/* Акценты */
-	--accent-color: #3b82f6; /* Modern Blue */
-	--accent-hover: #2563eb;
-	--danger-color: #ef4444;
-
-	/* Границы и линии */
-	--border-subtle: #e5e7eb;
-	--border-focus: #3b82f6;
-
-	/* Сетка */
-	/* Задача | Категория | Приоритет | Подзадачи | Ответственный | Срок | Дни | Статус | Действия */
+	/* --- Глобальные настройки (размеры) --- */
 	--task-grid: minmax(200px, 3fr) 150px 90px 60px 200px 110px 60px 100px 80px;
 	--subtask-indent: 32px;
+
+	/* Акцентные цвета (общие для всех, но можно менять) */
+	--accent-color: #3b82f6;
+	--accent-hover: #2563eb;
+	--danger-color: #ef4444;
+}
+
+/* 1. СТАНДАРТНАЯ ТЕМА (Mix: Темный сайдбар / Светлый контент) */
+[data-theme='standard'] {
+	--bg-app: #f5f5f7; /* Общий фон */
+	--bg-surface: #ffffff; /* Фон таблицы и карточек */
+	--bg-header: #ffffff; /* Фон шапки таблицы */
+	--bg-sidebar: #1e1e24; /* Темный сайдбар */
+
+	--task-row-bg-hover: #f5f5f7; /* Цвет при наведении */
+
+	--bg-hover: #e3e6eb; /* Цвет при наведении */
+	--bg-subtask: #fafafa; /* Фон подзадач (чуть темнее белого) */
+	--bg-input: #fcfcfc; /* Фон полей ввода */
+
+	--text-primary: #1a1a1a;
+	--text-secondary: #52525b;
+	--text-tertiary: #a1a1aa;
+	--text-hover: #ececec;
+
+	--border-subtle: #e4e4e7; /* Линии сетки */
+	--border-focus: #3b82f6;
+
+	--sidebar-text: #ffffff;
+	--sidebar-icon: #71717a;
+	--sidebar-icon-hover: #d4d4d8;
+
+	/* Стеклянная панель */
+	--panel-bg: rgba(255, 255, 255, 0.9);
+	--panel-shadow: -20px 0 50px rgba(0, 0, 0, 0.05);
+}
+
+/* 2. СВЕТЛАЯ ТЕМА (Light: Белый сайдбар / Светлый контент) */
+[data-theme='light'] {
+	--bg-app: #ffffff;
+	--bg-surface: #ffffff;
+	--bg-header: #ffffff;
+	--bg-sidebar: #f4f4f5; /* Светло-серый сайдбар */
+
+	--task-row-bg-hover: #f5f5f7; /* Цвет при наведении */
+
+	--bg-hover: #e3e6eb;
+	--bg-subtask: #f9fafb;
+	--bg-input: #ffffff;
+
+	--text-primary: #09090b;
+	--text-secondary: #52525b;
+	--text-tertiary: #a1a1aa;
+	--text-hover: #ececec;
+
+	--border-subtle: #e4e4e7;
+	--border-focus: #3b82f6;
+
+	--sidebar-text: #09090b;
+	--sidebar-icon: #71717a;
+	--sidebar-icon-hover: #18181b;
+
+	--panel-bg: rgba(255, 255, 255, 0.95);
+	--panel-shadow: -20px 0 50px rgba(0, 0, 0, 0.05);
+}
+
+/* 3. ТЕМНАЯ ТЕМА (Dark: Темный режим) */
+[data-theme='dark'] {
+	--bg-app: #09090b; /* Zinc 950 - очень темный фон */
+	--bg-surface: #18181b; /* Zinc 900 - поверхность */
+	--bg-header: #18181b;
+	--bg-sidebar: #000000; /* Черный сайдбар */
+
+	--task-row-bg-hover: #09090b; /* Цвет при наведении */
+
+	--bg-hover: #27272a; /* Zinc 800 */
+	--bg-subtask: #121212; /* Почти черный для вложенности (или #202022) */
+	--bg-input: #27272a;
+
+	--text-primary: #f4f4f5; /* Zinc 100 - почти белый текст */
+	--text-secondary: #a1a1aa; /* Zinc 400 */
+	--text-tertiary: #52525b; /* Zinc 600 */
+	--text-hover: #52525b;
+
+	--border-subtle: #27272a; /* Темные границы */
+	--border-focus: #3b82f6;
+
+	--sidebar-text: #f4f4f5;
+	--sidebar-icon: #52525b;
+	--sidebar-icon-hover: #e4e4e7;
+
+	/* Стеклянная панель (темная) */
+	--panel-bg: rgba(24, 24, 27, 0.9);
+	--panel-shadow: -20px 0 50px rgba(0, 0, 0, 0.5);
+}
+
+[data-theme='standard'],
+[data-theme='light'] {
+	/* ... Ваши существующие переменные фона/текста (оставьте как были в прошлом ответе) ... */
+
+	/* === ЦВЕТА СТАТУСОВ (Плошки) === */
+	/* Open (Blue) */
+	--badge-open-bg: #eef2ff;
+	--badge-open-text: #4f46e5;
+	--badge-open-border: #e0e7ff;
+
+	/* In Progress (Amber/Orange) */
+	--badge-progress-bg: #fffbeb;
+	--badge-progress-text: #b45309;
+	--badge-progress-border: #fef3c7;
+
+	/* Done (Green) */
+	--badge-done-bg: #f0fdf4;
+	--badge-done-text: #16a34a;
+	--badge-done-border: #dcfce7;
+
+	/* Paused (Purple) */
+	--badge-paused-bg: #f3e8ff;
+	--badge-paused-text: #9333ea;
+	--badge-paused-border: #f3e8ff;
+
+	/* Overdue/High (Red) */
+	--badge-danger-bg: #fef2f2;
+	--badge-danger-text: #dc2626;
+	--badge-danger-border: #fee2e2;
+
+	/* Cancelled (Gray) */
+	--badge-gray-bg: #f4f4f5;
+	--badge-gray-text: #52525b;
+	--badge-gray-border: #e4e4e7;
+
+	/* КНОПКИ */
+	--btn-bg: #ffffff;
+	--btn-border: #e4e4e7;
+	--btn-text: #52525b;
+	--btn-hover-bg: #f4f4f5;
+}
+
+/* --- 2. ТЕМНАЯ ТЕМА (Muted / Neon стиль) --- */
+[data-theme='dark'] {
+	/* ... Ваши существующие переменные фона (Zinc 950 и т.д.) ... */
+
+	/* === ЦВЕТА СТАТУСОВ (Темные прозрачные фоны + Яркий текст) === */
+	/* Open (Blue) */
+	--badge-open-bg: rgba(63, 131, 248, 0.15); /* Прозрачный синий */
+	--badge-open-text: #a5b4fc; /* Светло-синий текст */
+	--badge-open-border: rgba(63, 131, 248, 0.3);
+
+	/* In Progress (Orange) */
+	--badge-progress-bg: rgba(245, 158, 11, 0.15);
+	--badge-progress-text: #fcd34d;
+	--badge-progress-border: rgba(245, 158, 11, 0.3);
+
+	/* Done (Green) */
+	--badge-done-bg: rgba(34, 197, 94, 0.15);
+	--badge-done-text: #86efac;
+	--badge-done-border: rgba(34, 197, 94, 0.3);
+
+	/* Paused (Purple) */
+	--badge-paused-bg: rgba(168, 85, 247, 0.15);
+	--badge-paused-text: #d8b4fe;
+	--badge-paused-border: rgba(168, 85, 247, 0.3);
+
+	/* Overdue (Red) */
+	--badge-danger-bg: rgba(239, 68, 68, 0.15);
+	--badge-danger-text: #fca5a5;
+	--badge-danger-border: rgba(239, 68, 68, 0.3);
+
+	/* Cancelled (Gray) */
+	--badge-gray-bg: rgba(113, 113, 122, 0.2);
+	--badge-gray-text: #d4d4d8;
+	--badge-gray-border: rgba(113, 113, 122, 0.3);
+
+	/* КНОПКИ (Темные) */
+	--btn-bg: #27272a; /* Zinc 800 */
+	--btn-border: #3f3f46; /* Zinc 700 */
+	--btn-text: #e4e4e7; /* Светлый текст */
+	--btn-hover-bg: #3f3f46; /* Светлее при наведении */
 }
 
 * {
@@ -59,7 +217,7 @@ body {
 }
 
 .logo {
-	color: white;
+	color: var(--sidebar-text); /* Было white */
 	font-weight: 800;
 	font-size: 20px;
 	margin-bottom: 48px;
@@ -67,7 +225,7 @@ body {
 }
 
 .nav-icons .icon {
-	color: #52525b;
+	color: var(--sidebar-icon); /* Было #52525b */
 	font-size: 20px;
 	margin-bottom: 32px;
 	cursor: pointer;
@@ -77,8 +235,8 @@ body {
 }
 
 .nav-icons .icon:hover {
-	color: #d4d4d8;
-	transform: scale(1.1);
+	color: var(--sidebar-icon-hover); /* Было #d4d4d8 */
+	/* transform: scale(1.1); */
 }
 .nav-icons .icon.active {
 	color: var(--accent-color);
@@ -123,17 +281,17 @@ body {
 	display: grid;
 	grid-template-columns: var(--task-grid);
 	padding: 16px 24px;
-	border-bottom: 1px solid var(--border-subtle);
 	font-size: 11px;
 	text-transform: uppercase;
 	font-weight: 600;
 	letter-spacing: 0.5px;
-	color: var(--text-tertiary);
 	position: sticky;
 	top: 0;
-	background: var(--bg-surface);
 	border-radius: 16px 16px 0 0;
 	z-index: 10;
+	background: var(--bg-header); /* Было var(--bg-surface) или белый */
+	border-bottom: 1px solid var(--border-subtle);
+	color: var(--text-tertiary);
 }
 
 /* Rows */
@@ -149,7 +307,10 @@ body {
 }
 
 .task-row:hover {
-	background-color: #fafafa;
+	background-color: var(--task-row-bg-hover);
+}
+.task-row.is-subtask:hover {
+	background-color: var(--task-row-bg-hover);
 }
 .task-row:last-child {
 	border-bottom: none;
@@ -157,13 +318,13 @@ body {
 
 /* Subtasks Indentation */
 .task-row.is-subtask {
-	background-color: #fafafa; /* Чуть темнее белого */
-	padding-left: calc(24px + var(--subtask-indent)); /* Сдвиг */
+	background-color: var(--bg-subtask);
+	padding-left: calc(24px + var(--subtask-indent));
 }
 .task-row.is-subtask .task-title {
 	position: relative;
 }
-/* Линия связи - Elegant L-shape */
+/* L-образная линия связи */
 .task-row.is-subtask::before {
 	content: '';
 	position: absolute;
@@ -171,8 +332,8 @@ body {
 	top: -18px;
 	width: 16px;
 	height: 38px;
-	border-bottom: 2px solid #e4e4e7;
-	border-left: 2px solid #e4e4e7;
+	border-bottom: 2px solid var(--border-subtle); /* Было #e4e4e7 */
+	border-left: 2px solid var(--border-subtle); /* Было #e4e4e7 */
 	border-bottom-left-radius: 8px;
 	pointer-events: none;
 }
@@ -274,7 +435,6 @@ body {
 	cursor: pointer;
 	min-width: 80px;
 	text-align: center;
-	border-bottom: 1px dashed #ccc;
 }
 .task-assignee-text {
 	display: flex;
@@ -326,34 +486,34 @@ body {
 
 /* Цветовые схемы статусов */
 .status-open {
-	background: #eef2ff;
-	color: #4f46e5;
-	border: 1px solid #e0e7ff;
+	background: var(--badge-open-bg);
+	color: var(--badge-open-text);
+	border: 1px solid var(--badge-open-border);
 }
 .status-progress {
-	background: #fffbeb;
-	color: #b45309;
-	border: 1px solid #fef3c7;
+	background: var(--badge-progress-bg);
+	color: var(--badge-progress-text);
+	border: 1px solid var(--badge-progress-border);
 }
 .status-done {
-	background: #f0fdf4;
-	color: #16a34a;
-	border: 1px solid #dcfce7;
+	background: var(--badge-done-bg);
+	color: var(--badge-done-text);
+	border: 1px solid var(--badge-done-border);
 }
 .status-paused {
-	background: #f3e8ff;
-	color: #9333ea;
-	border: 1px solid #f3e8ff;
+	background: var(--badge-paused-bg);
+	color: var(--badge-paused-text);
+	border: 1px solid var(--badge-paused-border);
 }
 .status-overdue {
-	background: #fef2f2;
-	color: #dc2626;
-	border: 1px solid #fee2e2;
+	background: var(--badge-danger-bg);
+	color: var(--badge-danger-text);
+	border: 1px solid var(--badge-danger-border);
 }
 .status-cancelled {
-	background: #f4f4f5;
-	color: #71717a;
-	border: 1px solid #e4e4e7;
+	background: var(--badge-gray-bg);
+	color: var(--badge-gray-text);
+	border: 1px solid var(--badge-gray-border);
 }
 
 /* --- Action Buttons --- */
@@ -375,22 +535,23 @@ body {
 }
 /* Общий стиль для всех кнопок в действиях */
 .task-actions button {
-	background: white;
-	border: 1px solid var(--border-subtle);
+	background: var(--btn-bg); /* Переменная */
+	border: 1px solid var(--btn-border); /* Переменная */
 	border-radius: 6px;
+	color: var(--btn-text); /* Переменная */
 	width: 28px;
 	height: 28px;
 	display: flex;
 	align-items: center;
 	justify-content: center;
 	cursor: pointer;
-	color: var(--text-secondary);
 	transition: all 0.2s;
 	padding: 0; /* Убираем внутренние отступы */
 }
 
 /* Ховер для обычной кнопки (например, Плюс) - СИНИЙ */
 .task-actions button:hover {
+	background: var(--btn-hover-bg); /* Переменная */
 	border-color: var(--accent-color);
 	color: var(--accent-color);
 	box-shadow: 0 2px 5px rgba(0, 0, 0, 0.05);
@@ -398,14 +559,14 @@ body {
 .task-actions button.delete-btn:hover {
 	border-color: var(--danger-color);
 	color: var(--danger-color);
-	background: #fef2f2; /* Легкий красный фон */
+	background: var(--badge-danger-bg); /* Бледно-красный фон при наведении */
 }
 
 /* --- Add Forms --- */
 .main-add-row {
 	margin-top: 8px;
+	background: var(--bg-subtask); /* Или var(--bg-surface) если хотите выделить */
 	border-top: 1px solid var(--border-subtle);
-	background: #f8fafc;
 	border-radius: 0 0 16px 16px;
 }
 .main-add-row input,
@@ -422,8 +583,8 @@ body {
 }
 .add-btn-large,
 .mini-add-btn {
-	background: var(--text-primary);
-	color: white;
+	background: var(--text-primary); /* В темной теме станет белой */
+	color: var(--bg-app); /* Текст станет черным */
 	border: none;
 	border-radius: 8px;
 	padding: 8px 16px;
@@ -441,7 +602,8 @@ body {
 /* --- Custom Dropdown Menu (Floating) --- */
 .status-menu-custom {
 	position: absolute;
-	background: white;
+	background: var(--bg-surface); /* Было white */
+	border: 1px solid var(--border-subtle);
 	border-radius: 12px;
 	box-shadow:
 		0 10px 40px -10px rgba(0, 0, 0, 0.15),
@@ -481,7 +643,8 @@ body {
 	transition: background 0.1s;
 }
 .status-opt:hover {
-	background: #f4f4f5;
+	background: var(--bg-hover); /* Было #f4f4f5 */
+	color: var(--text-primary);
 }
 .status-opt::before {
 	content: '';
@@ -515,10 +678,10 @@ body {
 	top: 0;
 	width: 500px;
 	height: 100%;
-	background: rgba(255, 255, 255, 0.9);
+	background: var(--panel-bg); /* Было rgba(255, 255, 255, 0.9) */
+	border-left: 1px solid var(--border-subtle);
+	box-shadow: var(--panel-shadow);
 	backdrop-filter: blur(20px);
-	border-left: 1px solid rgba(0, 0, 0, 0.05);
-	box-shadow: -20px 0 50px rgba(0, 0, 0, 0.05);
 	z-index: 1000;
 	transition: right 0.4s cubic-bezier(0.16, 1, 0.3, 1);
 	padding: 40px;
@@ -563,14 +726,6 @@ body {
 	display: contents;
 }
 
-.task-category-text:hover {
-	background: #e4e4e7; /* Чуть темнее при наведении, показывая кликабельность */
-}
-
-.task-deadline-text:hover {
-	background: #e4e4e7; /* Чуть темнее при наведении, показывая кликабельность */
-}
-
 .toggle-icon {
 	cursor: pointer;
 	color: var(--text-tertiary);
@@ -606,9 +761,84 @@ body {
 	color: var(--text-primary);
 }
 
+.priority-badge {
+	cursor: pointer;
+	display: inline-flex;
+	align-items: center;
+	gap: 6px;
+	font-size: 12px;
+	font-weight: 600;
+	padding: 2px 8px;
+	border-radius: 12px;
+}
+.priority-high {
+	background: var(--badge-danger-bg);
+	color: var(--badge-danger-text);
+	border: 1px solid var(--badge-danger-border);
+}
+.priority-medium {
+	background: var(--badge-progress-bg);
+	color: var(--badge-progress-text);
+	border: 1px solid var(--badge-progress-border);
+}
+.priority-low {
+	background: var(--badge-done-bg); /* Зеленый для низкого */
+	color: var(--badge-done-text);
+	border: 1px solid var(--badge-done-border);
+}
+
+/* Визуальные маркеры приоритета (кружочки) */
+.priority-badge::before {
+	content: '';
+	width: 6px;
+	height: 6px;
+	border-radius: 50%;
+	background: currentColor;
+}
+
 .task-search-input {
 	width: 100%;
 	padding: 10px;
 	border: 1px solid var(--border-color);
 	border-radius: 8px;
+}
+
+.settings-dropdown {
+	position: absolute;
+	left: 40px; /* Выпадаем вправо от сайдбара */
+	top: -10px;
+	background: var(--bg-surface);
+	border: 1px solid var(--border-subtle);
+	border-radius: 12px;
+	padding: 8px;
+	width: 140px;
+	box-shadow: 0 10px 30px rgba(0, 0, 0, 0.15);
+	z-index: 100;
+	display: flex;
+	flex-direction: column;
+	gap: 4px;
+}
+.settings-dropdown.hidden {
+	display: none;
+}
+
+.theme-option {
+	padding: 8px 12px;
+	border-radius: 8px;
+	font-size: 13px;
+	color: var(--text-primary);
+	cursor: pointer;
+	transition: background 0.2s;
+	text-align: left;
+}
+.theme-option:hover {
+	background: var(--bg-app);
+}
+
+.task-title-text:hover,
+.task-assignee-text:hover,
+.task-deadline-text:hover,
+.task-category-text:hover {
+	background: var(--bg-hover);
+	border-radius: 4px;
 }

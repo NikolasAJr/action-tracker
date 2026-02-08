@@ -1,6 +1,6 @@
 import Router from '@koa/router';
 import { renderDashboard, createTask, deleteTask, editTask, getTaskDetails, getComments, addComment } from '../controllers/taskController.js';
-import { renderLogin, login, logout } from '../controllers/authController.js'; // Импорт
+import { renderLogin, login, logout, updateTheme } from '../controllers/authController.js';
 import { requireAdmin } from '../middleware/auth.js'; // Импорт
 import { renderAdminPanel, updateUserRole, deleteUser } from '../controllers/adminController.js'; // Импорт
 
@@ -29,5 +29,7 @@ router.get('/tasks/:id/comments', getComments);
 
 // НОВЫЙ МАРШРУТ: Добавление комментария к задаче (JSON)
 router.post('/tasks/:id/comments', addComment);
+
+router.post('/user/theme', updateTheme);
 
 export default router;

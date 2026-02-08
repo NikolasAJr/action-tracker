@@ -87,9 +87,48 @@ document.addEventListener('DOMContentLoaded', () => {
 
 	// Инициализация кнопки отправить
 	SidePanel.initChatListeners();
+
+	// --- THEME SWITCHER ---
+	const settingsTrigger = document.getElementById('settings-trigger');
+	const settingsMenu = document.getElementById('settings-menu');
+
+	// Клик по шестеренке
+	settingsTrigger.addEventListener('click', (e) => {
+		e.stopPropagation(); // Чтобы не сработал global click
+		settingsMenu.classList.toggle('hidden');
+	});
+
+	// Клик по опции темы
+	document.querySelectorAll('.theme-option').forEach((opt) => {
+		opt.addEventListener('click', async (e) => {
+			const theme = e.target.dataset.val;
+
+			// 1. Мгновенно меняем атрибут (быстро UI)
+			document.documentElement.setAttribute('data-theme', theme);
+
+			// 2. Закрываем меню
+			settingsMenu.classList.add('hidden');
+
+			// 3. Сохраняем на сервере
+			try {
+				await fetch('/user/theme', {
+					method: 'POST',
+					headers: { 'Content-Type': 'application/json' },
+					body: JSON.stringify({ theme }),
+				});
+			} catch (err) {
+				console.error('Ошибка сохранения темы', err);
+			}
+		});
+	});
 });
 
 function handleGlobalClick(e) {
+	const settingsMenu = document.getElementById('settings-menu');
+	if (settingsMenu && !settingsMenu.contains(e.target) && !e.target.closest('#settings-trigger')) {
+		settingsMenu.classList.add('hidden');
+	}
+
 	const target = e.target.closest('[data-action]');
 
 	// Если клик мимо меню - закрыть меню
@@ -103,6 +142,8 @@ function handleGlobalClick(e) {
 
 	// ID для панели берем из переменной модуля панели
 	const panelId = SidePanel.currentPanelTaskId;
+
+	// Добавить: Закрытие меню настроек при клике вне его
 
 	switch (action) {
 		// --- Таблица и Общее ---

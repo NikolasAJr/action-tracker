@@ -82,4 +82,16 @@ if (userCheck.count === 0) {
 	db.prepare('INSERT INTO user (username, full_name, role) VALUES (?, ?, ?)').run(myUser, 'Главный Администратор', 'admin');
 }
 
+// 6. Миграция: Добавляем колонку theme, если её нет
+try {
+	const userColumns = db.prepare('PRAGMA table_info(user)').all();
+	const hasTheme = userColumns.some((col) => col.name === 'theme');
+	if (!hasTheme) {
+		db.prepare("ALTER TABLE user ADD COLUMN theme TEXT DEFAULT 'standard'").run();
+		console.log('Migrated: theme column added to user table');
+	}
+} catch (err) {
+	console.error('Migration error:', err);
+}
+
 export default db;

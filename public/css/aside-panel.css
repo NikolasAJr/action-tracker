@@ -68,11 +68,10 @@
 	min-height: 150px;
 	padding: 12px;
 	border-radius: 8px;
-	border: 1px solid var(--border-subtle);
-	background: #fcfcfc;
+	background: var(--bg-input); /* Было #fcfcfc */
+	color: var(--text-primary);
 	font-family: inherit;
 	font-size: 14px;
-	color: var(--text-primary);
 	resize: vertical;
 	transition: all 0.2s;
 }
@@ -142,40 +141,6 @@
 }
 
 /* Приоритеты (Badge Style) */
-.priority-badge {
-	cursor: pointer;
-	display: inline-flex;
-	align-items: center;
-	gap: 6px;
-	font-size: 12px;
-	font-weight: 600;
-	padding: 2px 8px;
-	border-radius: 12px;
-}
-.priority-high {
-	background: #fef2f2;
-	color: #dc2626;
-	border: 1px solid #fee2e2;
-}
-.priority-medium {
-	background: #fffbeb;
-	color: #d97706;
-	border: 1px solid #fef3c7;
-}
-.priority-low {
-	background: #f0fdf4;
-	color: #16a34a;
-	border: 1px solid #dcfce7;
-}
-
-/* Визуальные маркеры приоритета (кружочки) */
-.priority-badge::before {
-	content: '';
-	width: 6px;
-	height: 6px;
-	border-radius: 50%;
-	background: currentColor;
-}
 
 .chat-section {
 	display: flex;
@@ -192,10 +157,10 @@
 	display: flex;
 	flex-direction: column;
 	gap: 12px;
-	background: #f9fafb; /* Очень легкий фон для зоны чата */
+	background: var(--bg-app); /* Или var(--bg-subtask) */
+	border: 1px solid var(--border-subtle);
 	border-radius: 8px;
 	margin-bottom: 12px;
-	border: 1px solid var(--border-subtle);
 }
 
 .chat-message {
@@ -219,15 +184,15 @@
 }
 
 .msg-bubble {
-	background: white;
+	background: var(--bg-surface);
+	color: var(--text-primary);
+	border: 1px solid var(--border-subtle);
 	padding: 2px 12px;
 	border-radius: 12px;
 	border-top-left-radius: 2px; /* Хвостик слева */
 	box-shadow: 0 1px 2px rgba(0, 0, 0, 0.05);
 	font-size: 13px;
-	color: var(--text-primary);
 	line-height: 1.4;
-	border: 1px solid var(--border-subtle);
 }
 
 .chat-message.is-me .msg-bubble {
@@ -250,6 +215,8 @@
 	flex: 1;
 	padding: 10px 12px;
 	border-radius: 8px;
+	background: var(--bg-input); /* Было #fcfcfc */
+	color: var(--text-primary);
 	border: 1px solid var(--border-subtle);
 	font-family: inherit;
 	font-size: 13px;

@@ -33,3 +33,31 @@ export const logout = async (ctx) => {
 	ctx.session = null;
 	ctx.redirect('/login');
 };
+
+export const updateTheme = async (ctx) => {
+	const { theme } = ctx.request.body;
+
+	// 1. Валидация (твой код)
+	const validThemes = ['standard', 'light', 'dark'];
+	if (!validThemes.includes(theme)) {
+		ctx.status = 400;
+		ctx.body = { error: 'Недопустимая тема' };
+		return;
+	}
+
+	try {
+		// 2. Обновление в Базе Данных (твой код)
+		db.prepare('UPDATE user SET theme = ? WHERE id = ?').run(theme, ctx.state.user.id);
+
+		// 3. ВАЖНО: Обновление в Сессии (чтобы при F5 тема не сбрасывалась)
+		if (ctx.session && ctx.session.user) {
+			ctx.session.user.theme = theme;
+		}
+
+		ctx.body = { success: true };
+	} catch (err) {
+		console.error(err);
+		ctx.status = 500;
+		ctx.body = { error: 'Ошибка БД' };
+	}
+};
