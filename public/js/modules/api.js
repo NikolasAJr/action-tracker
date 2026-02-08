@@ -34,3 +34,11 @@ export async function sendComment(taskId, text) {
 	if (!response.ok) throw new Error('Ошибка отправки комментария');
 	return await response.json();
 }
+
+export async function deleteTask(id) {
+	const response = await fetch(`/tasks/delete/${id}`, {
+		method: 'POST',
+	});
+	if (!response.ok) throw new Error('Ошибка удаления');
+	return await response.json();
+}

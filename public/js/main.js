@@ -5,6 +5,8 @@ import * as SidePanel from './modules/sidePanel.js';
 import * as Dropdown from './modules/dropdown.js';
 import * as Table from './modules/table.js';
 import { updateStatusColor, updateDaysLeftUI, updatePriorityUI } from './modules/utils.js';
+import * as Api from './modules/api.js';
+import * as Admin from './modules/admin.js';
 
 document.addEventListener('DOMContentLoaded', () => {
 	Table.restoreState();
@@ -14,9 +16,39 @@ document.addEventListener('DOMContentLoaded', () => {
 	document.body.addEventListener('click', handleGlobalClick);
 
 	// Подтверждение удаления
-	document.body.addEventListener('submit', (e) => {
+	document.body.addEventListener('submit', async (e) => {
+		// 1. Обработка УДАЛЕНИЯ
 		if (e.target.dataset.confirm === 'true') {
-			if (!confirm('Удалить задачу?')) e.preventDefault();
+			e.preventDefault(); // Останавливаем стандартную отправку формы
+
+			if (!confirm('Удалить задачу и все её подзадачи?')) return;
+
+			// Находим ID из action атрибута формы: /tasks/delete/123
+			const actionUrl = e.target.getAttribute('action');
+			const id = actionUrl.split('/').pop();
+
+			try {
+				await Api.deleteTask(id);
+
+				// Удаляем строку из DOM
+				const row = e.target.closest('.task-row');
+				if (row) {
+					// Анимация исчезновения
+					row.style.transition = 'all 0.3s';
+					row.style.opacity = '0';
+					row.style.transform = 'translateX(20px)';
+
+					setTimeout(() => {
+						row.remove();
+						// Также удаляем подзадачи, если это была родительская задача
+						document.querySelectorAll(`.task-row[data-parent-id="${id}"]`).forEach((sub) => sub.remove());
+					}, 300);
+				}
+			} catch (err) {
+				alert('Не удалось удалить задачу');
+				console.error(err);
+			}
+			return;
 		}
 
 		// Ищем скрытое поле parent_id внутри формы
@@ -26,6 +58,30 @@ document.addEventListener('DOMContentLoaded', () => {
 			// мы сохраняем ID родителя в LocalStorage.
 			// После перезагрузки restoreState() увидит его и раскроет список.
 			Table.forceExpand(parentIdInput.value);
+		}
+	});
+
+	document.body.addEventListener('change', (e) => {
+		if (e.target.dataset.action === 'admin-change-role') {
+			const userId = e.target.dataset.id;
+			const newRole = e.target.value;
+
+			// Визуально блокируем на время запроса
+			e.target.disabled = true;
+
+			Admin.changeRole(userId, newRole)
+				.then(() => {
+					// Зеленая вспышка успеха
+					e.target.style.backgroundColor = '#dcfce7';
+					setTimeout(() => (e.target.style.backgroundColor = ''), 500);
+				})
+				.catch((err) => {
+					alert(err.message);
+					// Откатываем значение назад (если бы сохранили предыдущее, но пока просто алерт)
+				})
+				.finally(() => {
+					e.target.disabled = false;
+				});
 		}
 	});
 
@@ -135,6 +191,16 @@ function handleGlobalClick(e) {
 				// Если меняли дату, обновляем дни в таблице
 				if (field === 'deadline_at') updateDaysLeftUI(panelId, newVal);
 			});
+			break;
+		// --- ADMIN ACTIONS ---
+		case 'admin-delete-user':
+			if (!confirm('Удалить пользователя?')) return;
+			Admin.deleteUser(id)
+				.then(() => {
+					const row = e.target.closest('tr');
+					if (row) row.remove();
+				})
+				.catch((err) => alert(err.message));
 			break;
 	}
 }

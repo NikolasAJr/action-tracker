@@ -13,3 +13,13 @@ export const requireAuth = async (ctx, next) => {
 
 	await next();
 };
+
+export const requireAdmin = async (ctx, next) => {
+	// requireAuth уже должен был отработать до этого и положить user в state
+	if (!ctx.state.user || ctx.state.user.role !== 'admin') {
+		ctx.status = 403;
+		ctx.body = 'Доступ запрещен (только для администраторов)';
+		return;
+	}
+	await next();
+};

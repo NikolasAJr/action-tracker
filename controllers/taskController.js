@@ -77,11 +77,13 @@ export const createTask = async (ctx) => {
 export const deleteTask = async (ctx) => {
 	try {
 		const { id } = ctx.params;
+		if (!db) throw new Error('БД не инициализирована');
 		db.prepare('DELETE FROM task WHERE id = ?').run(id);
-		ctx.redirect('/');
+		ctx.body = { success: true, id };
 	} catch (err) {
+		console.error(err);
 		ctx.status = 500;
-		ctx.body = 'Ошибка удаления';
+		ctx.body = { error: 'Ошибка удаления' };
 	}
 };
 

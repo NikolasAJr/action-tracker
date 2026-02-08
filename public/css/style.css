@@ -367,8 +367,14 @@ body {
 .task-row:hover .task-actions {
 	opacity: 1;
 }
-.task-actions button,
-.delete-btn {
+/* ВАЖНО: Сбрасываем стили формы, чтобы она не ломала ряд кнопок */
+.task-actions .delete-form {
+	margin: 0;
+	padding: 0;
+	display: flex; /* Форма ведет себя как контейнер кнопки */
+}
+/* Общий стиль для всех кнопок в действиях */
+.task-actions button {
 	background: white;
 	border: 1px solid var(--border-subtle);
 	border-radius: 6px;
@@ -380,16 +386,19 @@ body {
 	cursor: pointer;
 	color: var(--text-secondary);
 	transition: all 0.2s;
+	padding: 0; /* Убираем внутренние отступы */
 }
-.task-actions button:hover,
-.delete-btn:hover {
+
+/* Ховер для обычной кнопки (например, Плюс) - СИНИЙ */
+.task-actions button:hover {
 	border-color: var(--accent-color);
 	color: var(--accent-color);
 	box-shadow: 0 2px 5px rgba(0, 0, 0, 0.05);
 }
-.delete-btn:hover {
+.task-actions button.delete-btn:hover {
 	border-color: var(--danger-color);
 	color: var(--danger-color);
+	background: #fef2f2; /* Легкий красный фон */
 }
 
 /* --- Add Forms --- */
