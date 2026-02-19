@@ -9,10 +9,13 @@
   <link rel="stylesheet" href="./css/aside-panel.css">
   <script>
     // Глобальная переменная нужна для модуля dropdown.js
-    window.CATEGORIES = <%- JSON.stringify(categories.map(c => c.name)) %>;
     window.SESSION = {
       username: "<%= user ? user.username : undefined %>"
     };
+     // Глобальная переменная нужна для модуля dropdown.js
+    window.CATEGORIES = <%- JSON.stringify(categories.map(c => c.name)) %>;
+    // Для чата, чтобы определять свои сообщения
+    window.CURRENT_USER = "<%= user.username %>";
   </script>
 </head>
 

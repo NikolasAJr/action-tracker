@@ -1,0 +1,93 @@
+<!DOCTYPE html>
+<html lang="ru">
+
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Action Tracker | Пользователи</title>
+  <link rel="stylesheet" href="/css/style.css">
+  <style>
+    /* Дополнительные стили для таблицы пользователей */
+    .user-grid {
+      display: grid;
+      grid-template-columns: 50px 1fr 1fr 150px 100px; /* ID, Имя, Login, Роль, Действия */
+      align-items: center;
+      padding: 12px 24px;
+      border-bottom: 1px solid var(--border-subtle);
+    }
+    .grid-header {
+      font-weight: 700;
+      color: var(--text-tertiary);
+      font-size: 11px;
+      text-transform: uppercase;
+    }
+    .role-select {
+        border: 1px solid var(--border-subtle);
+        border-radius: 6px;
+        padding: 4px 8px;
+        background: white;
+        font-size: 13px;
+    }
+  </style>
+</head>
+
+<body>
+  <div class="app-container">
+    <aside class="sidebar">
+      <div class="logo">At</div>
+      <nav class="nav-icons">
+        <a href="/" class="icon" title="Задачи">🏠</a>
+        <div class="icon active">👥</div>
+        <div style="margin-top: auto; display: flex; flex-direction: column; align-items: center; gap: 10px; padding-bottom: 20px;">
+             <a href="/logout" style="text-decoration: none; color: #ef4444; font-size: 20px;" title="Выйти">✕</a>
+        </div>
+      </nav>
+    </aside>
+
+    <main class="main-content">
+      <h1 style="font-size: 24px; font-weight: 700; margin-bottom: 24px;">Управление пользователями</h1>
+
+      <div class="task-table">
+        <div class="user-grid grid-header" style="background: #fafafa; border-radius: 16px 16px 0 0;">
+          <span>ID</span>
+          <span>Полное имя</span>
+          <span>Username</span>
+          <span>Роль</span>
+          <span style="text-align: right;">Действия</span>
+        </div>
+
+        <% users.forEach(u => { %>
+          <div class="user-grid hover-row">
+            <span style="color: var(--text-tertiary);">#<%= u.id %></span>
+            <span style="font-weight: 500;"><%= u.full_name || '—' %></span>
+            <span class="badge"><%= u.username %></span>
+            
+            <span>
+                <select class="role-select" data-action="admin-change-role" data-id="<%= u.id %>" <%= u.id === user.id ? 'disabled' : '' %>>
+                    <option value="user" <%= u.role === 'user' ? 'selected' : '' %>>Пользователь</option>
+                    <option value="admin" <%= u.role === 'admin' ? 'selected' : '' %>>Администратор</option>
+                </select>
+            </span>
+
+            <div style="display: flex; justify-content: flex-end;">
+                <% if (u.id !== user.id) { %>
+                    <button class="delete-btn" 
+                            style="border: 1px solid #fee2e2; background: #fff; color: #ef4444; border-radius: 6px; width: 32px; height: 32px; cursor: pointer; display: flex; align-items: center; justify-content: center;"
+                            data-action="admin-delete-user" 
+                            data-id="<%= u.id %>"
+                            title="Удалить пользователя">
+                        🗑
+                    </button>
+                <% } else { %>
+                    <span style="font-size: 10px; color: #ccc;">(Это вы)</span>
+                <% } %>
+            </div>
+          </div>
+        <% }); %>
+      </div>
+    </main>
+  </div>
+
+  <script type="module" src="/js/main.js"></script>
+</body>
+</html>

@@ -92,7 +92,7 @@ function appendMessage(msg) {
 
 	let me = window.SESSION.username ? window.SESSION.username : 'Anonymous';
 
-	const isMe = msg.author === me; // Хардкод пока нет авторизации
+	const isMe = msg.author === (window.CURRENT_USER || 'Admin'); 
 	const date = new Date(msg.created_at).toLocaleTimeString([], { year: 'numeric', month: '2-digit', day: '2-digit', hour: '2-digit', minute: '2-digit' });
 
 	const el = document.createElement('div');
