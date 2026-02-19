@@ -1,57 +1,34 @@
-import db from '../database/dbConntect.js';
+import db from '../database/dbConnect.js';
 
+/**
+ * Рендерит дашборд.
+ */
 export const renderDashboard = async (ctx) => {
 	try {
-		// Получаем все задачи
 		const allTasks = db.prepare('SELECT * FROM task').all();
+		// НОВОЕ: Получаем список категорий
+		const categories = db.prepare('SELECT * FROM category').all();
+
 		const today = new Date();
 		today.setHours(0, 0, 0, 0);
 
-		// Разделяем на основные и подзадачи
-		// @ts-ignore
 		const mainTasks = allTasks.filter((t) => t.parent_id === null);
-		// @ts-ignore
 		const subTasks = allTasks.filter((t) => t.parent_id !== null);
-
-		// Собираем иерархию: после каждой основной задачи вставляем её подзадачи
 		const taskTree = [];
-		mainTasks.forEach((main) => {
-			// @ts-ignore
-			let mainTask = innerTaskHandler(main);
-			taskTree.push(Object.assign({}, mainTask, { isSubtask: false }));
 
-			// @ts-ignore
+		mainTasks.forEach((main) => {
+			const mainTask = decorateTask(main, today);
+			taskTree.push({ ...mainTask, isSubtask: false });
+
 			const children = subTasks.filter((sub) => sub.parent_id === main.id);
 			children.forEach((child) => {
-				let childTask = innerTaskHandler(child);
-				taskTree.push(Object.assign({}, childTask, { isSubtask: true }));
+				const childTask = decorateTask(child, today);
+				taskTree.push({ ...childTask, isSubtask: true });
 			});
-
-			/**
-			 * @param {object} task
-			 */
-			function innerTaskHandler(task) {
-				const targetDate = new Date(task.deadline_at);
-				targetDate.setHours(0, 0, 0, 0);
-				const diffInMs = targetDate.getTime() - today.getTime();
-				let daysLeft = Math.ceil(diffInMs / (1000 * 60 * 60 * 24));
-
-				// Сохраняем реальные дни
-				task.daysLeft = daysLeft < 0 ? 0 : daysLeft;
-
-				// Список статусов, которые считаются "активными"
-				const activeStatuses = ['Открыто', 'В работе'];
-
-				// Меняем статус для отображения, только если задача просрочена И всё еще активна
-				if (daysLeft < 0 && activeStatuses.includes(task.status)) {
-					task.status = 'Просрочено';
-				}
-
-				return { ...task };
-			}
 		});
 
-		await ctx.render('index', { tasks: taskTree });
+		// Передаем categories в шаблон
+		await ctx.render('index', { tasks: taskTree, categories });
 	} catch (err) {
 		console.error('Ошибка при загрузке задач:', err);
 		ctx.status = 500;
@@ -59,69 +36,136 @@ export const renderDashboard = async (ctx) => {
 	}
 };
 
-// Обновите createTask, чтобы принимать parent_id
+// Вспомогательная функция для подсчета дней и статусов
+function decorateTask(task, today) {
+	const targetDate = new Date(task.deadline_at);
+	targetDate.setHours(0, 0, 0, 0);
+	const diffInMs = targetDate.getTime() - today.getTime();
+	const daysLeft = Math.ceil(diffInMs / (1000 * 60 * 60 * 24));
+
+	task.daysLeft = daysLeft < 0 ? 0 : daysLeft;
+	const activeStatuses = ['Открыто', 'В работе'];
+	if (daysLeft < 0 && activeStatuses.includes(task.status)) {
+		task.status = 'Просрочено';
+	}
+	return { ...task };
+}
+
+// ... Остальные методы (createTask, deleteTask, editTask) остаются без изменений,
+// так как они работают с полями динамически или через стандартный INSERT/UPDATE
 export const createTask = async (ctx) => {
 	try {
-		const { title, assigned_to, deadline_at, status, parent_id } = ctx.request.body;
+		if (!db) throw new Error('БД не инициализирована');
 
-		if (!db) {
-			throw new Error('БД еще не была инициализирована');
-		}
+		const { title, assigned_to, deadline_at, status, parent_id, category, priority } = ctx.request.body;
+		const currentUser = ctx.state.user; // Получаем из сессии
+		const finalAssignee = assigned_to || currentUser.username;
 
 		db.prepare(
-			`
-			INSERT INTO task (title, assigned_to, deadline_at, status, parent_id) 
-			VALUES (?, ?, ?, ?, ?)
-		`,
-		).run(title, assigned_to, deadline_at, status, parent_id || null);
+			`INSERT INTO task (title, assigned_to, deadline_at, status, parent_id, category, priority)
+             VALUES (?, ?, ?, ?, ?, ?, ?)`,
+		).run(title, finalAssignee, deadline_at, status, parent_id || null, category || null, priority || 1);
 
 		ctx.redirect('/');
 	} catch (err) {
-		console.error('Ошибка при создании задачи:', err);
+		console.error(err);
 		ctx.status = 500;
-		ctx.body = { error: 'Ошибка при создании задачи' };
+		ctx.body = 'Ошибка создания задачи';
 	}
 };
 
-// Добавляем новую функцию удаления
 export const deleteTask = async (ctx) => {
 	try {
-		if (!db) {
-			throw new Error('БД еще не была инициализирована');
-		}
-
 		const { id } = ctx.params;
+		if (!db) throw new Error('БД не инициализирована');
 		db.prepare('DELETE FROM task WHERE id = ?').run(id);
-		ctx.redirect('/');
+		ctx.body = { success: true, id };
 	} catch (err) {
-		console.error('Ошибка при удалении задачи:', err);
+		console.error(err);
 		ctx.status = 500;
-		ctx.body = { error: 'Ошибка при удалении задачи' };
+		ctx.body = { error: 'Ошибка удаления' };
 	}
 };
 
 export const editTask = async (ctx) => {
 	const { id } = ctx.params;
-	const { status, title } = ctx.request.body; // Получаем и статус, и название
+	const body = ctx.request.body || {};
+	const allowedFields = ['title', 'category', 'assigned_to', 'deadline_at', 'status', 'mto_number', 'object_name', 'comments', 'task_type', 'priority', 'created_by'];
+	const fieldsToUpdate = Object.keys(body).filter((key) => allowedFields.includes(key) && body[key] !== undefined);
 
+	if (fieldsToUpdate.length === 0) {
+		ctx.status = 400;
+		ctx.body = { error: 'Нет полей' };
+		return;
+	}
 	try {
-		if (!db) throw new Error('БД еще не была инициализирована');
-
-		// Если пришло название
-		if (title !== undefined) {
-			db.prepare('UPDATE task SET title = ? WHERE id = ?').run(title, id);
-		}
-
-		// Если пришел статус
-		if (status !== undefined) {
-			db.prepare('UPDATE task SET status = ? WHERE id = ?').run(status, id);
-		}
-
-		console.log(`Задача ${id} обновлена`);
+		const setClause = fieldsToUpdate.map((key) => `${key} = ?`).join(', ');
+		const values = fieldsToUpdate.map((key) => body[key]);
+		const sql = `UPDATE task SET ${setClause}, updated_at = CURRENT_TIMESTAMP WHERE id = ?`;
+		db.prepare(sql).run(...values, id);
 		ctx.body = { success: true };
 	} catch (err) {
-		console.error('Ошибка БД:', err);
 		ctx.status = 500;
-		ctx.body = { error: 'Ошибка при обновлении' };
+		ctx.body = { error: 'Ошибка БД' };
+	}
+};
+
+export const getTaskDetails = async (ctx) => {
+	const { id } = ctx.params;
+	try {
+		if (!db) throw new Error('БД не инициализирована');
+
+		const task = db.prepare('SELECT * FROM task WHERE id = ?').get(id);
+
+		if (!task) {
+			ctx.status = 404;
+			ctx.body = { error: 'Задача не найдена' };
+			return;
+		}
+
+		ctx.body = task;
+	} catch (err) {
+		console.error('Ошибка получения деталей:', err);
+		ctx.status = 500;
+		ctx.body = { error: 'Ошибка сервера' };
+	}
+};
+
+export const getComments = async (ctx) => {
+	const { id } = ctx.params;
+	try {
+		if (!db) throw new Error('БД не инициализирована');
+		const comments = db.prepare('SELECT * FROM task_comment WHERE task_id = ? ORDER BY created_at ASC').all(id); //DESC
+		ctx.body = comments;
+	} catch (err) {
+		console.error('Ошибка получения комментариев:', err);
+		ctx.status = 500;
+		ctx.body = { error: 'Ошибка получения комментариев' };
+	}
+};
+
+export const addComment = async (ctx) => {
+	const { id } = ctx.params;
+	// const { author, text } = ctx.request.body;
+	const { text } = ctx.request.body;
+
+	try {
+		if (!db) throw new Error('БД не инициализирована');
+
+		if (!text || !text.trim()) {
+			ctx.status = 400;
+			return;
+		}
+
+		const author = ctx.state.user.username; // Вместо 'Admin'
+
+		const info = db.prepare('INSERT INTO task_comment (task_id, author, text) VALUES (?, ?, ?)').run(id, author, text);
+
+		const newComment = db.prepare('SELECT * FROM task_comment WHERE id = ?').get(info.lastInsertRowid);
+		ctx.body = newComment;
+	} catch (err) {
+		console.error('Ошибка добавления комментария:', err);
+		ctx.status = 500;
+		ctx.body = { error: 'Ошибка отправки' };
 	}
 };
